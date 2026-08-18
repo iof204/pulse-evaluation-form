@@ -119,16 +119,19 @@ export default function Footer() {
                 <div>Home</div>
               </Link>
             </li>
+            {" "}
             <li>
               <Link href="/our-services">
                 <div>Our Services</div>
               </Link>
             </li>
+            {" "}
             <li>
               <Link href="/meet-bri">
                 <div>Meet Bri </div>
               </Link>
             </li>
+            {" "}
             <li>
               <Link href="/let-s-talk">
                 <div>Let&apos;s Talk</div>
@@ -138,7 +141,7 @@ export default function Footer() {
         </nav>
 
         <div className="copyright">
-          Copyright ©2026 Ecko Marketing&nbsp;&nbsp;. All Rights Reserved.{" "}
+          Copyright ©2026 Ecko Marketing . All Rights Reserved.{" "}
           <a
             target="_blank"
             aria-label="Designed by The LB Agency (opens in new window)"
