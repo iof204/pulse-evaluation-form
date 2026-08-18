@@ -415,7 +415,7 @@ body {
   }
 
   .primary-header .evaluation-navigation {
-    height: 68px;
+    height: 49px;
     padding-inline: 0;
   }
 
@@ -423,23 +423,23 @@ body {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     width: min(1120px, 100%);
-    height: 68px;
+    height: 49px;
     margin-left: max(0px, calc(50% - 586px));
     text-align: center;
   }
 
   .evaluation-navigation .page-listing li {
-    height: 68px;
+    height: 49px;
     font-family: var(--font-poppins), sans-serif;
     font-size: 12px;
     font-weight: 500;
-    line-height: 68px;
+    line-height: 49px;
   }
 
   .evaluation-navigation .page-listing button,
   .evaluation-navigation .page-listing button div {
     width: 100%;
-    height: 68px;
+    height: 49px;
     padding: 0;
     border: 0;
     font: inherit;
@@ -498,7 +498,7 @@ body {
 
 .questionnaire__title {
   width: min(740px, calc(100vw - 48px));
-  margin: 0 0 121px 50%;
+  margin: 0 0 48px 50%;
   color: #33185c;
   font-family: var(--font-poppins), sans-serif;
   font-size: 36px;
@@ -515,7 +515,7 @@ body {
 .questionnaire__answers {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .questionnaire__answer {
