@@ -527,6 +527,33 @@ body {
   font-weight: 500;
   line-height: 13px;
   text-align: center;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+  will-change: transform;
+}
+
+.questionnaire__answer:hover {
+  border-color: #c9c2d0;
+  background: #faf9fb;
+  box-shadow: 0 5px 14px rgb(51 24 92 / 9%);
+  transform: translateY(-1px);
+}
+
+.questionnaire__answer:active {
+  box-shadow: 0 2px 6px rgb(51 24 92 / 8%);
+  transform: translateY(0) scale(0.985);
+  transition-duration: 80ms;
+}
+
+.questionnaire__answer:focus-visible,
+.questionnaire__back:focus-visible,
+.questionnaire__continue:focus-visible {
+  outline: 3px solid rgb(135 64 186 / 28%);
+  outline-offset: 3px;
 }
 
 .questionnaire__answer--selected {
@@ -534,6 +561,12 @@ body {
   background: #33185c;
   color: #ffffff;
   font-weight: 600;
+}
+
+.questionnaire__answer--selected:hover {
+  border-color: #43216f;
+  background: #43216f;
+  box-shadow: 0 6px 16px rgb(51 24 92 / 20%);
 }
 
 .questionnaire__controls {
@@ -550,6 +583,12 @@ body {
   font-family: var(--font-poppins), sans-serif;
   font-size: 12px;
   line-height: 12px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+  will-change: transform;
 }
 
 .questionnaire__back {
@@ -557,6 +596,16 @@ body {
   background: transparent;
   color: #6b6673;
   font-weight: 500;
+}
+
+.questionnaire__back:hover {
+  color: #33185c;
+  transform: translateX(-2px);
+}
+
+.questionnaire__back:active {
+  transform: translateX(-1px) scale(0.97);
+  transition-duration: 80ms;
 }
 
 .questionnaire__continue {
@@ -572,6 +621,22 @@ body {
 
 .questionnaire__continue:hover {
   background: #633485;
+  box-shadow: 0 7px 18px 1px rgb(0 0 0 / 24%);
+  transform: translateY(-2px);
+}
+
+.questionnaire__continue:active {
+  box-shadow: 0 2px 7px 0 rgb(0 0 0 / 25%);
+  transform: translateY(0) scale(0.975);
+  transition-duration: 80ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .questionnaire__answer,
+  .questionnaire__back,
+  .questionnaire__continue {
+    transition-duration: 0.01ms;
+  }
 }
 
 @media (max-width: 767px) {
