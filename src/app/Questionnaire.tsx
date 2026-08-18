@@ -16,8 +16,8 @@ export default function Questionnaire() {
     <main className="questionnaire-page">
       <section className="questionnaire" aria-labelledby="question-title">
         <h1 id="question-title" className="questionnaire__title">
-          <span>How clearly does your marketing communicate</span>
-          <span>what your business offers and why it matters?</span>
+          How clearly does your marketing communicate what your business offers
+          and why it matters?
         </h1>
 
         <div className="questionnaire__answers" role="radiogroup">
