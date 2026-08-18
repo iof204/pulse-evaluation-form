@@ -11,7 +11,7 @@ import {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
-  const [activeSection, setActiveSection] = useState(1);
+  const [activeSection, setActiveSection] = useState<number | null>(1);
 
   useEffect(() => {
     const updateStickyState = () => setIsStuck(window.scrollY > 0);
@@ -43,18 +43,24 @@ export default function Header() {
       setActiveSection(sectionFromQuestion(questionId));
     }
 
+    function showCompletedState() {
+      setActiveSection(null);
+    }
+
     queueMicrotask(updateFromUrl);
     window.addEventListener("popstate", updateFromUrl);
     window.addEventListener(
       "evaluationquestionchange",
       updateFromQuestionEvent,
     );
+    window.addEventListener("evaluationresults", showCompletedState);
     return () => {
       window.removeEventListener("popstate", updateFromUrl);
       window.removeEventListener(
         "evaluationquestionchange",
         updateFromQuestionEvent,
       );
+      window.removeEventListener("evaluationresults", showCompletedState);
     };
   }, []);
 

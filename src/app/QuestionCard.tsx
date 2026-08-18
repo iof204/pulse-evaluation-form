@@ -15,6 +15,7 @@ type QuestionCardProps = {
   onSelectValue: (answerId: string) => void;
   onToggleValue: (answerId: string) => void;
   onShowDetails: (answer: AnswerOption) => void;
+  showSectionProgress?: boolean;
 };
 
 export default function QuestionCard({
@@ -25,7 +26,29 @@ export default function QuestionCard({
   onSelectValue,
   onToggleValue,
   onShowDetails,
+  showSectionProgress = false,
 }: QuestionCardProps) {
+  const sectionQuestions = evaluationQuestions.filter(
+    ({ sectionId }) => sectionId === question.sectionId,
+  );
+  const sectionQuestionIndex = sectionQuestions.findIndex(
+    ({ id }) => id === question.id,
+  );
+  const sectionProgress =
+    ((sectionQuestionIndex + 1) / sectionQuestions.length) * 100;
+  const progressBar = showSectionProgress ? (
+    <div
+      className="questionnaire__section-progress"
+      role="progressbar"
+      aria-label="Section progress"
+      aria-valuemin={1}
+      aria-valuemax={sectionQuestions.length}
+      aria-valuenow={sectionQuestionIndex + 1}
+    >
+      <span style={{ width: `${sectionProgress}%` }} />
+    </div>
+  ) : null;
+
   return (
     <section
       className={`questionnaire questionnaire--${phase}`}
@@ -40,6 +63,7 @@ export default function QuestionCard({
 
       {question.kind === "buttons" && (
         <div className="questionnaire__answers" role="radiogroup">
+          {progressBar}
           {question.answers.map((answer, index) => {
             const isSelected = selectedValues.includes(answer.id);
 
@@ -80,6 +104,7 @@ export default function QuestionCard({
           role="radiogroup"
           aria-label="Choose one answer"
         >
+          {progressBar}
           {question.answers.map((answer) => (
             <div className="questionnaire__choice-row" key={answer.id}>
               <label>
@@ -115,6 +140,7 @@ export default function QuestionCard({
           role="group"
           aria-label="Select all answers that apply"
         >
+          {progressBar}
           {question.answers.map((answer) => (
             <label key={answer.id}>
               <input

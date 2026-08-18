@@ -1,13 +1,5 @@
-import Footer from "./Footer";
-import Header from "./Header";
-import Questionnaire from "./Questionnaire";
+import EvaluationPage from "./EvaluationPage";
 
 export default function Home() {
-  return (
-    <>
-      <Header />
-      <Questionnaire />
-      <Footer />
-    </>
-  );
+  return <EvaluationPage />;
 }
