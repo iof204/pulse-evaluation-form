@@ -69,7 +69,7 @@ export default function Header() {
       </div>
 
       <nav
-        className={`primary-navigation${isMenuOpen ? " open" : ""}`}
+        className={`primary-navigation evaluation-navigation${isMenuOpen ? " open" : ""}`}
         aria-label="Site"
       >
         <div
@@ -89,24 +89,44 @@ export default function Header() {
 
           <ul className="page-listing" data-behavior="site-navigation">
             <li>
-              <Link className="active" href="/" onClick={closeMenu}>
-                <div>Home</div>
-              </Link>
+              <button type="button" onClick={closeMenu}>
+                <div>01 Goals</div>
+              </button>
             </li>{" "}
             <li>
-              <Link href="/our-services" onClick={closeMenu}>
-                <div>Our Services</div>
-              </Link>
+              <button type="button" className="active" aria-current="step" onClick={closeMenu}>
+                <div>02 Brand</div>
+              </button>
             </li>{" "}
             <li>
-              <Link href="/meet-bri" onClick={closeMenu}>
-                <div>Meet Bri </div>
-              </Link>
+              <button type="button" onClick={closeMenu}>
+                <div>03 Audience</div>
+              </button>
             </li>{" "}
             <li>
-              <Link href="/let-s-talk" onClick={closeMenu}>
-                <div>Let&apos;s Talk</div>
-              </Link>
+              <button type="button" onClick={closeMenu}>
+                <div>04 Offers</div>
+              </button>
+            </li>{" "}
+            <li>
+              <button type="button" onClick={closeMenu}>
+                <div>05 Journey</div>
+              </button>
+            </li>{" "}
+            <li>
+              <button type="button" onClick={closeMenu}>
+                <div>06 Visibility</div>
+              </button>
+            </li>{" "}
+            <li>
+              <button type="button" onClick={closeMenu}>
+                <div>07 Mix</div>
+              </button>
+            </li>{" "}
+            <li>
+              <button type="button" onClick={closeMenu}>
+                <div>08 Follow-Through</div>
+              </button>
             </li>
           </ul>
         </div>

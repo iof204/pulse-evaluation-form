@@ -183,7 +183,18 @@ body {
   display: inline-block;
 }
 
-.primary-navigation .page-listing a div {
+.primary-navigation .page-listing button {
+  display: inline-block;
+  width: auto;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: var(--ss-navigation-2-color);
+  cursor: pointer;
+}
+
+.primary-navigation .page-listing a div,
+.primary-navigation .page-listing button div {
   padding: 0 9px;
   background-color: var(--ss-navigation-1-color);
 }
@@ -197,6 +208,11 @@ body {
 }
 
 .primary-navigation a.active div {
+  background: var(--ss-navigation-2-color);
+  color: var(--ss-navigation-1-color);
+}
+
+.primary-navigation button.active div {
   background: var(--ss-navigation-2-color);
   color: var(--ss-navigation-1-color);
 }
@@ -306,11 +322,13 @@ body {
     border-bottom: none;
   }
 
-  .primary-navigation .page-listing a {
+  .primary-navigation .page-listing a,
+  .primary-navigation .page-listing button {
     display: block;
   }
 
-  .primary-navigation .page-listing a div {
+  .primary-navigation .page-listing a div,
+  .primary-navigation .page-listing button div {
     width: fit-content;
   }
 
@@ -381,17 +399,23 @@ body {
     vertical-align: top;
   }
 
-  .primary-navigation .page-listing a {
+  .primary-navigation .page-listing a,
+  .primary-navigation .page-listing button {
     display: block;
   }
 
-  .primary-navigation .page-listing a div {
+  .primary-navigation .page-listing a div,
+  .primary-navigation .page-listing button div {
     padding: 0 12px;
     border-bottom: 2px solid transparent;
   }
 
   .primary-navigation .page-listing a div:hover {
     border-color: var(--ss-navigation-2-color);
+  }
+
+  .evaluation-navigation .page-listing li {
+    font-size: 14px;
   }
 }
 
@@ -401,6 +425,130 @@ body {
       (100vw - var(--ss-post-body-max-width)) / 2,
       var(--ss-post-full-width-horizontal-padding)
     );
+  }
+}
+
+.questionnaire-page {
+  min-height: calc(100vh - 139px);
+  padding: 76px 24px 88px;
+  background: #ffffff;
+  color: #321c58;
+}
+
+.questionnaire {
+  width: 100%;
+  max-width: 625px;
+  margin: 0 auto;
+}
+
+.questionnaire__title {
+  width: min(760px, calc(100vw - 48px));
+  margin: 0 0 35px 50%;
+  color: #321c58;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.questionnaire__answers {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.questionnaire__answer {
+  min-height: 60px;
+  padding: 12px 24px;
+  border: 1px solid #dedce2;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #321c58;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.questionnaire__answer--selected {
+  border-color: #321c58;
+  background: #321c58;
+  color: #ffffff;
+}
+
+.questionnaire__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 26px;
+}
+
+.questionnaire__back,
+.questionnaire__continue {
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.questionnaire__back {
+  padding: 12px 0;
+  background: transparent;
+  color: #7f7b89;
+}
+
+.questionnaire__continue {
+  width: 178px;
+  min-height: 54px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: #8f3dc2;
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .questionnaire-page {
+    min-height: calc(100vh - 106px);
+    padding: 48px 20px 64px;
+  }
+
+  .questionnaire__title {
+    width: 100%;
+    margin-bottom: 30px;
+    font-size: 30px;
+    line-height: 1.18;
+  }
+
+  .questionnaire__title br {
+    display: none;
+  }
+
+  .questionnaire__answer {
+    min-height: 56px;
+    padding-inline: 18px;
+  }
+
+  .questionnaire__controls {
+    margin-top: 22px;
+  }
+
+  .questionnaire__continue {
+    width: 150px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 967px) {
+  .questionnaire-page {
+    padding-top: 62px;
+  }
+
+  .questionnaire__title {
+    font-size: 36px;
   }
 }
 
