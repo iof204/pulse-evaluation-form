@@ -29,6 +29,7 @@ body {
     transparent
   );
   color: var(--ss-footer-text-color);
+  font: 13px/1.231 var(--font-inter), sans-serif;
 }
 
 .footer-container h1,
