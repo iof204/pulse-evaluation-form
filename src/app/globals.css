@@ -9,5 +9,229 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.footer-container {
+  --ss-footer-color: #321c58;
+  --ss-footer-background-opacity: 1;
+  --ss-footer-headings-color: #7c4d9e;
+  --ss-footer-text-color: #ffffff;
+  --ss-footer-navigation-color: #ffffff;
+  --ss-footer-social-icon-color: #ffffff;
+  --ss-footer-social-icon-background-color: #7c4d9e;
+  --ss-title-font-family: var(--font-dm-sans), sans-serif;
+
+  position: relative;
+  background: color-mix(
+    in srgb,
+    var(--ss-footer-color) calc(100% * var(--ss-footer-background-opacity)),
+    transparent
+  );
+  color: var(--ss-footer-text-color);
+}
+
+.footer-container h1,
+.footer-container ul,
+.footer-container li {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+.footer-container nav ul,
+.footer-container nav li {
+  margin: 0;
+  list-style: none;
+}
+
+.footer-container strong {
+  font-weight: bold;
+}
+
+.footer-inner-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.footer__content {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 50px;
+}
+
+.footer__content--two_column {
+  gap: 48px;
+}
+
+.footer-container .about-title {
+  margin-bottom: 10px;
+  font-family: Arial;
+  font-weight: normal;
+}
+
+.footer-container .social-icons__title,
+.footer-container .about-title,
+.footer-container .location-title {
+  color: var(--ss-footer-headings-color);
+  font-family: var(--ss-title-font-family);
+  font-size: 153.9%;
+}
+
+.footer-container .about-content {
+  line-height: 1.8;
+}
+
+.footer-container .about-content a {
+  color: rgb(64, 144, 205);
+  text-decoration: none;
+}
+
+.footer-container .wysiwyg-text h1,
+.footer-container .wysiwyg-text h2,
+.footer-container .wysiwyg-text h3 {
+  font-weight: normal;
+}
+
+.footer-container .wysiwyg-text a span {
+  text-decoration: inherit;
+}
+
+.footer__content--two_column .social-icons {
+  margin-top: 22px;
+}
+
+.footer-container .social-icons__networks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-container .social-icons__networks a {
+  width: 35px;
+  height: 35px;
+  border-radius: 100%;
+  background-color: var(--ss-footer-social-icon-background-color);
+  font-size: 19.95px;
+  line-height: 35px;
+  text-align: center;
+}
+
+.footer-container .social-icons__networks .fab {
+  color: var(--ss-footer-social-icon-color);
+}
+
+.footer-container .location-title {
+  padding-bottom: 10px;
+}
+
+.footer-container div.locations a {
+  color: var(--ss-footer-text-color);
+  text-decoration: underline;
+}
+
+.footer-container div.locations .location {
+  line-height: 147%;
+}
+
+.footer-container div.locations .location__item + .location__item .location__content {
+  padding-top: 10px;
+}
+
+.footer-container div.locations .location__icon {
+  padding-right: 10px;
+  color: var(--ss-footer-headings-color);
+}
+
+.footer__content--two_column .location {
+  display: table;
+}
+
+.footer__content--two_column .location__item {
+  display: table-row;
+}
+
+.footer__content--two_column .location__icon,
+.footer__content--two_column .location__content {
+  display: table-cell;
+}
+
+.footer-container nav {
+  display: none;
+  font-size: 15px;
+  line-height: 28px;
+  text-align: center;
+}
+
+.footer-container nav ul {
+  display: inline;
+}
+
+.footer-container nav li {
+  position: relative;
+  display: inline;
+  margin: 0 7px;
+}
+
+.footer-container nav a {
+  display: inline-block;
+  color: var(--ss-footer-navigation-color);
+  text-decoration: none;
+}
+
+.footer-container nav a div {
+  white-space: nowrap;
+}
+
+.footer-container .copyright {
+  margin-top: 20px;
+  color: var(--ss-footer-text-color);
+  font-size: 77%;
+  text-align: center;
+}
+
+.footer-container .copyright a {
+  color: var(--ss-footer-text-color);
+  text-decoration: none;
+}
+
+@media (min-width: 761px) {
+  .font-size-s {
+    font-size: 125%;
+  }
+}
+
+@media (min-width: 768px) {
+  .footer__content--two_column {
+    flex-direction: row;
+  }
+
+  .footer__content--two_column .footer__column {
+    flex: 1 1 0%;
+  }
+}
+
+@media (min-width: 968px) {
+  .footer-container nav {
+    display: block;
+  }
+}
+
+@media print {
+  .footer-container,
+  .footer-container * {
+    background: transparent !important;
+    color: black !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  .footer-container a,
+  .footer-container a:visited {
+    color: rgb(68, 68, 68) !important;
+    text-decoration: underline;
+  }
 }
