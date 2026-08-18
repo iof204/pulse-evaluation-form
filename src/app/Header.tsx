@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  evaluationQuestions,
+  evaluationSections,
+  questionIndexForSection,
+} from "./questionnaireData";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
+  const [activeSection, setActiveSection] = useState(1);
 
   useEffect(() => {
     const updateStickyState = () => setIsStuck(window.scrollY > 0);
@@ -14,6 +20,42 @@ export default function Header() {
     window.addEventListener("scroll", updateStickyState, { passive: true });
 
     return () => window.removeEventListener("scroll", updateStickyState);
+  }, []);
+
+  useEffect(() => {
+    function sectionFromQuestion(questionId: number) {
+      return (
+        evaluationQuestions.find((question) => question.id === questionId)
+          ?.sectionId ?? 1
+      );
+    }
+
+    function updateFromUrl() {
+      const questionId = Number(
+        new URL(window.location.href).searchParams.get("question"),
+      );
+      setActiveSection(sectionFromQuestion(questionId));
+    }
+
+    function updateFromQuestionEvent(event: Event) {
+      const questionId = (event as CustomEvent<{ questionId: number }>).detail
+        .questionId;
+      setActiveSection(sectionFromQuestion(questionId));
+    }
+
+    queueMicrotask(updateFromUrl);
+    window.addEventListener("popstate", updateFromUrl);
+    window.addEventListener(
+      "evaluationquestionchange",
+      updateFromQuestionEvent,
+    );
+    return () => {
+      window.removeEventListener("popstate", updateFromUrl);
+      window.removeEventListener(
+        "evaluationquestionchange",
+        updateFromQuestionEvent,
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -28,6 +70,18 @@ export default function Header() {
   }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const openSection = (sectionId: number) => {
+    const questionIndex = questionIndexForSection(sectionId);
+    const url = new URL(window.location.href);
+    url.searchParams.set(
+      "question",
+      String(evaluationQuestions[questionIndex].id),
+    );
+    window.history.pushState(window.history.state, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    closeMenu();
+  };
 
   return (
     <header
@@ -88,46 +142,22 @@ export default function Header() {
           />
 
           <ul className="page-listing" data-behavior="site-navigation">
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>01 Goals</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" className="active" aria-current="step" onClick={closeMenu}>
-                <div>02 Brand</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>03 Audience</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>04 Offers</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>05 Journey</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>06 Visibility</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>07 Mix</div>
-              </button>
-            </li>{" "}
-            <li>
-              <button type="button" onClick={closeMenu}>
-                <div>08 Follow-Through</div>
-              </button>
-            </li>
+            {evaluationSections.map((section) => (
+              <li key={section.id}>
+                <button
+                  type="button"
+                  className={activeSection === section.id ? "active" : undefined}
+                  aria-current={
+                    activeSection === section.id ? "step" : undefined
+                  }
+                  onClick={() => openSection(section.id)}
+                >
+                  <div>
+                    {String(section.id).padStart(2, "0")} {section.label}
+                  </div>
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
       </nav>

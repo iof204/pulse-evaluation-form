@@ -1,46 +1,83 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import QuestionCard from "./QuestionCard";
+import {
+  evaluationQuestions,
+  type AnswerOption,
+} from "./questionnaireData";
 
-const questions = [
-  {
-    title:
-      "How clearly does your marketing communicate what your business offers and why it matters?",
-    answers: [
-      "Crystal clear",
-      "Mostly clear",
-      "More “what” than “why”",
-      "It takes some explaining",
-    ],
-  },
-  {
-    title: "How consistently does your brand show up across your marketing?",
-    answers: [
-      "Consistent everywhere",
-      "Mostly consistent",
-      "It varies by channel",
-      "We are still finding our style",
-    ],
-  },
-];
+type TransitionPhase = "idle" | "exiting" | "entering";
+type Responses = Record<number, string[]>;
+
+function indexFromUrl() {
+  const value = Number(
+    new URL(window.location.href).searchParams.get("question"),
+  );
+
+  return Number.isInteger(value) &&
+    value >= 1 &&
+    value <= evaluationQuestions.length
+    ? value - 1
+    : 0;
+}
+
+function announceQuestion(index: number) {
+  window.dispatchEvent(
+    new CustomEvent("evaluationquestionchange", {
+      detail: { questionId: evaluationQuestions[index].id },
+    }),
+  );
+}
+
+function updateUrl(index: number, mode: "push" | "replace" = "push") {
+  const url = new URL(window.location.href);
+  url.searchParams.set("question", String(evaluationQuestions[index].id));
+  window.history[mode === "push" ? "pushState" : "replaceState"](
+    window.history.state,
+    "",
+    url,
+  );
+  announceQuestion(index);
+}
 
 export default function Questionnaire() {
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [phase, setPhase] = useState<"idle" | "exiting" | "entering">(
-    "idle",
-  );
-  const [answerDetails, setAnswerDetails] = useState<{
-    question: string;
-    answer: string;
-  } | null>(null);
+  const [responses, setResponses] = useState<Responses>({});
+  const [phase, setPhase] = useState<TransitionPhase>("idle");
+  const [answerDetails, setAnswerDetails] = useState<AnswerOption | null>(null);
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const question = questions[questionIndex];
+  const question = evaluationQuestions[questionIndex];
+  const selectedValues = responses[question.id] ?? [];
+  const canContinue = selectedValues.length > 0;
 
   useEffect(() => {
     return () => {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    function showQuestionFromUrl() {
+      if (transitionTimer.current) clearTimeout(transitionTimer.current);
+      const nextIndex = indexFromUrl();
+      setQuestionIndex(nextIndex);
+      setPhase("idle");
+      announceQuestion(nextIndex);
+    }
+
+    const initialIndex = indexFromUrl();
+    updateUrl(initialIndex, "replace");
+    let isActive = true;
+    queueMicrotask(() => {
+      if (isActive) setQuestionIndex(initialIndex);
+    });
+
+    window.addEventListener("popstate", showQuestionFromUrl);
+    return () => {
+      isActive = false;
+      window.removeEventListener("popstate", showQuestionFromUrl);
     };
   }, []);
 
@@ -56,75 +93,101 @@ export default function Questionnaire() {
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [answerDetails]);
 
-  function chooseAnswer(answer: string) {
-    if (phase !== "idle") return;
+  function storeSingleAnswer(answerId: string) {
+    setResponses((current) => ({
+      ...current,
+      [question.id]: answerId ? [answerId] : [],
+    }));
+  }
 
-    setSelectedAnswer(answer);
+  function toggleAnswer(answerId: string) {
+    setResponses((current) => {
+      const values = current[question.id] ?? [];
+      return {
+        ...current,
+        [question.id]: values.includes(answerId)
+          ? values.filter((value) => value !== answerId)
+          : [...values, answerId],
+      };
+    });
+  }
+
+  function moveToQuestion(nextIndex: number, animate = true) {
+    if (phase !== "idle" || nextIndex === questionIndex) return;
+
+    if (!animate) {
+      updateUrl(nextIndex);
+      setQuestionIndex(nextIndex);
+      return;
+    }
+
     setPhase("exiting");
     transitionTimer.current = setTimeout(() => {
-      setQuestionIndex((current) => (current + 1) % questions.length);
-      setSelectedAnswer(null);
+      updateUrl(nextIndex);
+      setQuestionIndex(nextIndex);
       setPhase("entering");
       transitionTimer.current = setTimeout(() => setPhase("idle"), 500);
     }, 1420);
   }
 
+  function chooseButtonAnswer(answer: AnswerOption) {
+    if (phase !== "idle") return;
+    storeSingleAnswer(answer.id);
+
+    if (questionIndex < evaluationQuestions.length - 1) {
+      moveToQuestion(questionIndex + 1);
+    }
+  }
+
   return (
     <main className="questionnaire-page">
-      <section
-        key={questionIndex}
-        className={`questionnaire questionnaire--${phase}`}
-        aria-labelledby="question-title"
-      >
-        <h1 id="question-title" className="questionnaire__title">
-          {question.title}
-        </h1>
+      <QuestionCard
+        key={question.id}
+        question={question}
+        phase={phase}
+        selectedValues={selectedValues}
+        onChooseButton={chooseButtonAnswer}
+        onSelectValue={storeSingleAnswer}
+        onToggleValue={toggleAnswer}
+        onShowDetails={setAnswerDetails}
+      />
 
-        <div className="questionnaire__answers" role="radiogroup">
-          {question.answers.map((answer, index) => {
-            const isSelected = selectedAnswer === answer;
-
-            return (
-              <div
-                key={answer}
-                style={{ "--answer-index": index } as CSSProperties}
-                className={`questionnaire__answer-wrap${isSelected ? " questionnaire__answer-wrap--selected" : " questionnaire__answer-wrap--unselected"}`}
-              >
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  disabled={phase !== "idle"}
-                  className={`questionnaire__answer${isSelected ? " questionnaire__answer--selected" : " questionnaire__answer--unselected"}`}
-                  onClick={() => chooseAnswer(answer)}
-                >
-                  {answer}
-                </button>
-                <button
-                  type="button"
-                  className="questionnaire__answer-info"
-                  aria-label={`Learn more about “${answer}”`}
-                  disabled={phase !== "idle"}
-                  onClick={() =>
-                    setAnswerDetails({ question: question.title, answer })
-                  }
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="questionnaire__controls">
-          <button type="button" className="questionnaire__back">
-            ← Back
-          </button>
-          <button type="button" className="questionnaire__continue">
-            Continue
-          </button>
-        </div>
-      </section>
+      <div className="questionnaire__controls">
+        <button
+          type="button"
+          className="questionnaire__back"
+          disabled={questionIndex === 0 || phase !== "idle"}
+          onClick={() => moveToQuestion(questionIndex - 1, false)}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" />
+          </svg>
+          <span>Back</span>
+        </button>
+        <button
+          type="button"
+          className="questionnaire__continue"
+          disabled={!canContinue || phase !== "idle"}
+          onClick={() => {
+            if (questionIndex < evaluationQuestions.length - 1) {
+              moveToQuestion(questionIndex + 1);
+            }
+          }}
+        >
+          {questionIndex === evaluationQuestions.length - 1
+            ? "Complete"
+            : "Continue"}
+        </button>
+      </div>
 
       {answerDetails && (
         <div
@@ -149,13 +212,14 @@ export default function Questionnaire() {
             >
               ×
             </button>
-            <p className="answer-dialog__eyebrow">About this response</p>
-            <h2 id="answer-dialog-title">{answerDetails.answer}</h2>
-            <p className="answer-dialog__question">{answerDetails.question}</p>
-            <p id="answer-dialog-description">
-              Choose this response if it best reflects where your marketing is
-              today. There is no wrong answer—this helps identify the clearest
-              next opportunity for your strategy.
+            <h2 id="answer-dialog-title" className="answer-dialog__title">
+              About “{answerDetails.label}”
+            </h2>
+            <p
+              id="answer-dialog-description"
+              className="answer-dialog__description"
+            >
+              {answerDetails.description}
             </p>
             <button
               type="button"
