@@ -32,6 +32,15 @@ body {
   font: 13px/1.231 var(--font-inter), sans-serif;
 }
 
+.footer-container,
+.footer-container *,
+.footer-container::before,
+.footer-container::after,
+.footer-container *::before,
+.footer-container *::after {
+  box-sizing: content-box;
+}
+
 .footer-container h1,
 .footer-container ul,
 .footer-container li {
@@ -136,6 +145,10 @@ body {
 
 .footer-container div.locations .location {
   line-height: 147%;
+}
+
+.footer-container div.locations .location + * {
+  margin-top: 50px;
 }
 
 .footer-container div.locations .location__item + .location__item .location__content {
