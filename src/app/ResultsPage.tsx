@@ -33,6 +33,23 @@ function evaluateSections(responses: Responses): EvaluatedSection[] {
   });
 }
 
+function shareResults(
+  platform: "facebook" | "x" | "linkedin",
+  summary: string,
+) {
+  const shareUrl = new URL(window.location.href);
+  shareUrl.search = "";
+  const url = encodeURIComponent(shareUrl.toString());
+  const text = encodeURIComponent(summary);
+  const destinations = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
+    x: `https://x.com/intent/post?url=${url}&text=${text}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+  };
+
+  window.open(destinations[platform], "_blank", "noopener,noreferrer,width=720,height=640");
+}
+
 function getPerspective(counts: Record<ResultLevel, number>) {
   if (counts.strong === 7) return perspectiveCopy["all-strong"];
   if (counts.strong >= 5 && counts["needs-love"] === 0)
@@ -73,11 +90,14 @@ function Insight({ section }: { section: EvaluatedSection }) {
 
 export default function ResultsPage({
   responses,
+  compact = false,
 }: {
   responses: Responses;
   onRestart: () => void;
+  compact?: boolean;
 }) {
   const [submitted, setSubmitted] = useState(false);
+  const [openLevel, setOpenLevel] = useState<ResultLevel | null>(null);
   const evaluated = evaluateSections(responses);
   const counts = evaluated.reduce<Record<ResultLevel, number>>(
     (total, section) => ({
@@ -86,6 +106,116 @@ export default function ResultsPage({
     }),
     { strong: 0, building: 0, "needs-love": 0 },
   );
+
+  if (compact) {
+    const categories: Array<{ level: ResultLevel; label: string }> = [
+      { level: "strong", label: "Strong Foundation" },
+      { level: "building", label: "Building Momentum" },
+      { level: "needs-love", label: "Needs a Little Love" },
+    ];
+    const activeCategory = categories.find(({ level }) => level === openLevel);
+    const activeSections = openLevel
+      ? evaluated.filter(({ level }) => level === openLevel)
+      : [];
+    const shareSummary = `My Ecko Marketing Pulse: ${counts.strong} strong foundation, ${counts.building} building momentum, and ${counts["needs-love"]} needing a little love.`;
+
+    return (
+      <main className="questionnaire-page results-page-minimal results-page-compact">
+        <div className="results-content">
+          <header className="results-header">
+            <h1>Good News: Your Marketing Has a Pulse</h1>
+          </header>
+
+          <section className="results-block" aria-label="Marketing results">
+            <div className={`results-category-flip${openLevel ? " results-category-flip--turned" : ""}`}>
+              <div className="results-category-flip__inner">
+                <div className="results-category-flip__front">
+                  {categories.map(({ level, label }) => (
+                    <div className="results-category-row" key={level}>
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{counts[level]} {counts[level] === 1 ? "area" : "areas"}</small>
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`View ${label} details`}
+                        onClick={() => setOpenLevel(level)}
+                      >
+                        <span aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <section className="results-category-flip__back" aria-hidden={!openLevel}>
+                  <header>
+                    <div>
+                      <h3>{activeCategory?.label}</h3>
+                      <p>{activeSections.length} {activeSections.length === 1 ? "area" : "areas"}</p>
+                    </div>
+                    <div className="results-share" aria-label="Share your results">
+                      <button type="button" aria-label="Share on Facebook" onClick={() => shareResults("facebook", shareSummary)}><i className="fab fa-facebook-f" aria-hidden="true" /></button>
+                      <button type="button" aria-label="Share on X" onClick={() => shareResults("x", shareSummary)}><i className="fab fa-x-twitter" aria-hidden="true" /></button>
+                      <button type="button" aria-label="Share on LinkedIn" onClick={() => shareResults("linkedin", shareSummary)}><i className="fab fa-linkedin-in" aria-hidden="true" /></button>
+                    </div>
+                  </header>
+                  <div className="results-category-details">
+                    {activeSections.length ? activeSections.map((section) => {
+                      const snapshot = section.snapshots[section.level];
+                      return (
+                        <article key={section.key}>
+                          <h4>{section.name}</h4>
+                          <p>{section.reminder}</p>
+                          <strong>What we&apos;re seeing</strong>
+                          <p>{snapshot.seeing}</p>
+                          <strong>Why it matters</strong>
+                          <p>{snapshot.matters}</p>
+                        </article>
+                      );
+                    }) : (
+                      <p className="results-category-details__empty">No areas landed here this time.</p>
+                    )}
+                    <button
+                      className="results-category-details__done"
+                      type="button"
+                      onClick={() => setOpenLevel(null)}
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <section className="results-email-minimal" aria-labelledby="compact-email-title">
+            <div>
+              <h2 id="compact-email-title">Get the Full Pulse Check</h2>
+            </div>
+            {submitted ? (
+              <p className="results-email-minimal__success" role="status">
+                Your detailed results are on the way.
+              </p>
+            ) : (
+              <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+                <div className="results-form-grid">
+                  <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
+                  <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
+                  <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
+                  <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
+                </div>
+                <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+                <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Send me occasional Ecko updates.</span></label>
+                <button className="questionnaire__continue" type="submit">Email My Results</button>
+              </form>
+            )}
+          </section>
+
+        </div>
+      </main>
+    );
+  }
+
   const clicking = evaluated.filter(({ level }) => level === "strong").slice(0, 2);
   const needsLove = evaluated.filter(({ level }) => level === "needs-love");
   const building = evaluated
@@ -171,7 +301,7 @@ export default function ResultsPage({
               <div className="results-form-grid">
                 <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
                 <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
-                <label>Business Name <span>Optional</span><input name="businessName" autoComplete="organization" /></label>
+                <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                 <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
               </div>
               <label className="results-check"><input type="checkbox" required /><span>By submitting, you agree to receive your requested results and acknowledge our <a href="/privacy-policy">Privacy Policy</a>.</span></label>

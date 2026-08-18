@@ -24,15 +24,15 @@ const actionTitles: Record<string, string> = {
   Rely: "Relying",
 };
 
-const detailExpansions: Record<number, string> = {
-  1: "This gives us clearer context for the outcome your marketing needs to support first and the kind of momentum you are trying to create.",
-  2: "This helps us interpret your answers through the way your business delivers value and how customers typically experience it.",
-  3: "Your current stage shapes which marketing priorities are most useful now and what may need to be built before the next phase of growth.",
-  4: "This gives us a better sense of whether your brand and message reinforce one recognizable idea across customer touchpoints.",
-  5: "This helps reveal how intentionally your marketing is shaped around the people you most want to reach and what matters to them.",
-  6: "This helps show whether your marketing activity is connected to a defined purpose or is being driven mainly by immediate needs.",
-  7: "This gives us context for how your channels work together, how customers find you, and how confidently you can learn from results.",
-  8: "This helps us understand how reliably interest becomes action and how intentionally customer relationships continue after the first transaction.",
+const detailPriorities: Record<number, string> = {
+  1: "Prioritizing context that keeps the recommendations ahead practical and relevant to your business.",
+  2: "Prioritizing a recognizable message and brand experience across every customer touchpoint.",
+  3: "Prioritizing a clearer understanding of the people you most want to reach and what matters to them.",
+  4: "Prioritizing marketing activity that connects to a defined purpose instead of the need of the moment.",
+  5: "Prioritizing a customer journey that makes the offer, next step, and path forward easier to understand.",
+  6: "Prioritizing intentional planning around the right message, timing, audience, and places to show up.",
+  7: "Prioritizing a connected channel mix and clearer signals about what deserves repeating or changing.",
+  8: "Prioritizing reliable follow-through that turns interest into action and first-time customers into lasting relationships.",
 };
 
 function detailTitle(label: string) {
@@ -77,18 +77,23 @@ export default function Questionnaire({
   showSectionProgress = false,
   exitDuration = 1420,
   inlineAnswerDetails = false,
+  compactResults = false,
 }: {
   autoAdvanceOnSelect?: boolean;
   showSectionProgress?: boolean;
   exitDuration?: number;
   inlineAnswerDetails?: boolean;
+  compactResults?: boolean;
 } = {}) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Responses>({});
   const [phase, setPhase] = useState<TransitionPhase>("idle");
   const [showResults, setShowResults] = useState(false);
+  const [showResultsLoading, setShowResultsLoading] = useState(false);
+  const [showIntroLoading, setShowIntroLoading] = useState(compactResults);
   const [answerDetails, setAnswerDetails] = useState<AnswerOption | null>(null);
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const introTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const question = evaluationQuestions[questionIndex];
   const selectedValues = responses[question.id] ?? [];
@@ -97,14 +102,21 @@ export default function Questionnaire({
   useEffect(() => {
     return () => {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
+      if (introTimer.current) clearTimeout(introTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!compactResults) return;
+    introTimer.current = setTimeout(() => setShowIntroLoading(false), 1400);
+  }, [compactResults]);
 
   useEffect(() => {
     function showQuestionFromUrl() {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
       const nextIndex = indexFromUrl();
       setShowResults(false);
+      setShowResultsLoading(false);
       setQuestionIndex(nextIndex);
       setPhase("idle");
       announceQuestion(nextIndex);
@@ -202,30 +214,83 @@ export default function Questionnaire({
 
   function finishEvaluation() {
     if (phase !== "idle") return;
+    window.dispatchEvent(
+      new CustomEvent("evaluationvideotransition", {
+        detail: { questionId: evaluationQuestions.length + 1 },
+      }),
+    );
     setPhase("exiting");
-    transitionTimer.current = setTimeout(() => {
+    const revealResults = () => {
       const url = new URL(window.location.href);
       url.searchParams.delete("question");
       url.searchParams.set("results", "1");
       window.history.pushState(window.history.state, "", url);
+      setShowResultsLoading(false);
       setShowResults(true);
-      window.dispatchEvent(new Event("evaluationresults"));
       setPhase("idle");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      const announceResults = () => {
+        window.dispatchEvent(
+          new CustomEvent("evaluationresults", {
+            detail: { questionId: evaluationQuestions.length + 1 },
+          }),
+        );
+      };
+
+      if (compactResults) {
+        transitionTimer.current = setTimeout(announceResults, 560);
+      } else {
+        announceResults();
+      }
+    };
+
+    transitionTimer.current = setTimeout(() => {
+      if (!compactResults) {
+        revealResults();
+        return;
+      }
+
+      setShowResultsLoading(true);
+      setPhase("idle");
+      transitionTimer.current = setTimeout(revealResults, 1500);
     }, exitDuration);
   }
 
   function restartEvaluation() {
     setResponses({});
     setShowResults(false);
+    setShowResultsLoading(false);
     setQuestionIndex(0);
     setPhase("idle");
     updateUrl(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  if (showIntroLoading || showResultsLoading) {
+    return (
+      <main className="questionnaire-page results-loading" aria-live="polite" aria-busy="true">
+        <div className="results-loading__content">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="results-loading__logo"
+            src="https://d14tal8bchn59o.cloudfront.net/tT8kTKStgAOAqD3CF-vqwSdDxRBYUlCtZatT91hBmrM/w:1920/plain/https%3A%2F%2F02f0a56ef46d93f03c90-22ac5f107621879d5667e0d7ed595bdb.ssl.cf2.rackcdn.com%2Fsites%2F127849%2Fphotos%2F24248554%2FEK_Ecko_Logo_%2528Page_1%2529_original.png"
+            alt="Ecko Marketing"
+          />
+          <h1>{showIntroLoading ? "Pulse Evaluation" : "Pulse Evaluation Results"}</h1>
+          <span className="results-loading__loader" aria-hidden="true" />
+        </div>
+      </main>
+    );
+  }
+
   if (showResults) {
-    return <ResultsPage responses={responses} onRestart={restartEvaluation} />;
+    return (
+      <ResultsPage
+        responses={responses}
+        onRestart={restartEvaluation}
+        compact={compactResults}
+      />
+    );
   }
 
   const questionCard = (
@@ -261,7 +326,8 @@ export default function Questionnaire({
                 <>
                   <h2>{detailTitle(answerDetails.label)}</h2>
                   <p>
-                    {answerDetails.description} {detailExpansions[question.sectionId]}
+                    {answerDetails.description}
+                    {question.id !== 1 && ` ${detailPriorities[question.sectionId]}`}
                   </p>
                   <button type="button" onClick={() => setAnswerDetails(null)}>
                     Got it
