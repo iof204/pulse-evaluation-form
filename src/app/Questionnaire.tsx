@@ -30,7 +30,12 @@ export default function Questionnaire() {
   const [phase, setPhase] = useState<"idle" | "exiting" | "entering">(
     "idle",
   );
+  const [answerDetails, setAnswerDetails] = useState<{
+    question: string;
+    answer: string;
+  } | null>(null);
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const question = questions[questionIndex];
 
   useEffect(() => {
@@ -38,6 +43,18 @@ export default function Questionnaire() {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!answerDetails) return;
+
+    closeButtonRef.current?.focus();
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setAnswerDetails(null);
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [answerDetails]);
 
   function chooseAnswer(answer: string) {
     if (phase !== "idle") return;
@@ -68,18 +85,33 @@ export default function Questionnaire() {
             const isSelected = selectedAnswer === answer;
 
             return (
-              <button
+              <div
                 key={answer}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
-                disabled={phase !== "idle"}
                 style={{ "--answer-index": index } as CSSProperties}
-                className={`questionnaire__answer${isSelected ? " questionnaire__answer--selected" : " questionnaire__answer--unselected"}`}
-                onClick={() => chooseAnswer(answer)}
+                className={`questionnaire__answer-wrap${isSelected ? " questionnaire__answer-wrap--selected" : " questionnaire__answer-wrap--unselected"}`}
               >
-                {answer}
-              </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  disabled={phase !== "idle"}
+                  className={`questionnaire__answer${isSelected ? " questionnaire__answer--selected" : " questionnaire__answer--unselected"}`}
+                  onClick={() => chooseAnswer(answer)}
+                >
+                  {answer}
+                </button>
+                <button
+                  type="button"
+                  className="questionnaire__answer-info"
+                  aria-label={`Learn more about “${answer}”`}
+                  disabled={phase !== "idle"}
+                  onClick={() =>
+                    setAnswerDetails({ question: question.title, answer })
+                  }
+                >
+                  <span aria-hidden="true">+</span>
+                </button>
+              </div>
             );
           })}
         </div>
@@ -93,6 +125,48 @@ export default function Questionnaire() {
           </button>
         </div>
       </section>
+
+      {answerDetails && (
+        <div
+          className="answer-dialog__backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAnswerDetails(null);
+          }}
+        >
+          <div
+            className="answer-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="answer-dialog-title"
+            aria-describedby="answer-dialog-description"
+          >
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="answer-dialog__close"
+              aria-label="Close dialog"
+              onClick={() => setAnswerDetails(null)}
+            >
+              ×
+            </button>
+            <p className="answer-dialog__eyebrow">About this response</p>
+            <h2 id="answer-dialog-title">{answerDetails.answer}</h2>
+            <p className="answer-dialog__question">{answerDetails.question}</p>
+            <p id="answer-dialog-description">
+              Choose this response if it best reflects where your marketing is
+              today. There is no wrong answer—this helps identify the clearest
+              next opportunity for your strategy.
+            </p>
+            <button
+              type="button"
+              className="answer-dialog__done"
+              onClick={() => setAnswerDetails(null)}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

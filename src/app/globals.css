@@ -485,7 +485,7 @@ body {
 
 .questionnaire-page {
   min-height: 694px;
-  padding: 66px 24px 79px;
+  padding: 54px 24px 79px;
   background: #ffffff;
   color: #33185c;
 }
@@ -498,7 +498,7 @@ body {
 
 .questionnaire__title {
   width: min(740px, calc(100vw - 48px));
-  margin: 0 0 48px 50%;
+  margin: 0 0 36px 50%;
   color: #33185c;
   font-family: var(--font-poppins), sans-serif;
   font-size: 36px;
@@ -514,9 +514,17 @@ body {
   gap: 12px;
 }
 
-.questionnaire__answer {
+.questionnaire__answer-wrap {
+  position: relative;
   height: 54px;
-  padding: 0 24px;
+  border-radius: 12px;
+  will-change: transform;
+}
+
+.questionnaire__answer {
+  width: 100%;
+  height: 54px;
+  padding: 0 58px 0 24px;
   border: 1px solid #e3e0e5;
   border-radius: 12px;
   background: #ffffff;
@@ -524,7 +532,7 @@ body {
   cursor: pointer;
   font-family: var(--font-poppins), sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 13px;
   text-align: center;
   transition:
@@ -550,10 +558,56 @@ body {
 }
 
 .questionnaire__answer:focus-visible,
+.questionnaire__answer-info:focus-visible,
 .questionnaire__back:focus-visible,
-.questionnaire__continue:focus-visible {
+.questionnaire__continue:focus-visible,
+.answer-dialog__close:focus-visible,
+.answer-dialog__done:focus-visible {
   outline: 3px solid rgb(135 64 186 / 28%);
   outline-offset: 3px;
+}
+
+.questionnaire__answer-info {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #f3f0f5;
+  box-shadow: none;
+  color: #33185c;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0;
+  place-items: center;
+  transform: translateY(-50%) scale(0.78);
+  transition:
+    opacity 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.questionnaire__answer-wrap:hover .questionnaire__answer-info,
+.questionnaire__answer-wrap:focus-within .questionnaire__answer-info {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.questionnaire__answer-info:hover {
+  background: #e9e3ed;
+  color: #633485;
+}
+
+.questionnaire__answer-info:active {
+  transform: translateY(-50%) scale(0.92);
 }
 
 .questionnaire__answer--selected {
@@ -570,12 +624,12 @@ body {
   box-shadow: 0 7px 18px 1px rgb(0 0 0 / 24%);
 }
 
-.questionnaire--exiting .questionnaire__answer--selected {
+.questionnaire--exiting .questionnaire__answer-wrap--selected {
   pointer-events: none;
   animation: selectedAnswerExit 1380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.questionnaire--exiting .questionnaire__answer--unselected {
+.questionnaire--exiting .questionnaire__answer-wrap--unselected {
   pointer-events: none;
   animation: answerSlideLeft 500ms cubic-bezier(0.55, 0, 1, 0.45) forwards;
   animation-delay: calc(var(--answer-index) * 55ms + 110ms);
@@ -593,7 +647,7 @@ body {
   animation: questionTitleEnter 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.questionnaire--entering .questionnaire__answer {
+.questionnaire--entering .questionnaire__answer-wrap {
   animation: answerEnter 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--answer-index) * 65ms + 70ms);
 }
@@ -666,11 +720,123 @@ body {
   }
 }
 
+.answer-dialog__backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  background: rgb(25 15 38 / 52%);
+  backdrop-filter: blur(3px);
+  animation: dialogBackdropIn 180ms ease both;
+  place-items: center;
+}
+
+.answer-dialog {
+  position: relative;
+  width: min(100%, 500px);
+  padding: 30px;
+  border: 1px solid #e5e1e8;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgb(24 12 39 / 28%);
+  color: #4e4657;
+  font-family: var(--font-poppins), sans-serif;
+  animation: dialogContentIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.answer-dialog__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #746d7b;
+  cursor: pointer;
+  font: 24px/1 Arial, sans-serif;
+  place-items: center;
+}
+
+.answer-dialog__close:hover {
+  background: #f3f0f5;
+  color: #33185c;
+}
+
+.answer-dialog__eyebrow {
+  margin: 0 42px 8px 0;
+  color: #7c4d9e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.answer-dialog h2 {
+  margin: 0 42px 14px 0;
+  color: #33185c;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.answer-dialog__question {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f7f4f9;
+  color: #33185c;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.answer-dialog p:last-of-type {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.answer-dialog__done {
+  width: 100%;
+  height: 44px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 12px;
+  background: #7c4d9e;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.answer-dialog__done:hover {
+  background: #633485;
+}
+
+@keyframes dialogBackdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialogContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
 .questionnaire__controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 36px;
 }
 
 .questionnaire__back,
@@ -729,6 +895,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .questionnaire__answer-wrap,
   .questionnaire__answer,
   .questionnaire__back,
   .questionnaire__continue {
@@ -745,23 +912,23 @@ body {
 @media (max-width: 767px) {
   .questionnaire-page {
     min-height: calc(100vh - 106px);
-    padding: 48px 20px 64px;
+    padding: 40px 20px 64px;
   }
 
   .questionnaire__title {
     width: 100%;
-    margin-bottom: 48px;
+    margin-bottom: 36px;
     font-size: 30px;
     line-height: 1.28;
   }
 
   .questionnaire__answer {
     height: 54px;
-    padding-inline: 18px;
+    padding: 0 54px 0 18px;
   }
 
   .questionnaire__controls {
-    margin-top: 22px;
+    margin-top: 36px;
   }
 
   .questionnaire__continue {
@@ -771,13 +938,17 @@ body {
 
 @media (min-width: 768px) and (max-width: 967px) {
   .questionnaire-page {
-    padding-top: 62px;
+    padding-top: 52px;
   }
 
   .questionnaire__title {
-    margin-bottom: 72px;
+    margin-bottom: 60px;
     font-size: 34px;
     line-height: 1.28;
+  }
+
+  .questionnaire__controls {
+    margin-top: 60px;
   }
 }
 
