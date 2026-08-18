@@ -424,20 +424,21 @@ body {
     grid-template-columns: repeat(8, 1fr);
     width: min(1120px, 100%);
     height: 49px;
-    margin-left: max(0px, calc(50% - 586px));
+    margin: 0 auto;
     text-align: center;
   }
 
   .evaluation-navigation .page-listing li {
+    display: flex;
+    align-items: center;
     height: 49px;
     font-family: var(--font-poppins), sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     line-height: 49px;
   }
 
-  .evaluation-navigation .page-listing button,
-  .evaluation-navigation .page-listing button div {
+  .evaluation-navigation .page-listing button {
     width: 100%;
     height: 49px;
     padding: 0;
@@ -445,32 +446,34 @@ body {
     font: inherit;
   }
 
+  .evaluation-navigation .page-listing button div {
+    box-sizing: border-box;
+    width: 100%;
+    height: 49px;
+    margin: 0;
+    padding: 0 8px;
+    border-radius: 0;
+    color: rgb(250 250 250 / 78%);
+    line-height: 49px;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .evaluation-navigation .page-listing button:hover div {
+    background: rgb(250 250 250 / 11%);
+    color: #ffffff;
+  }
+
   .evaluation-navigation .page-listing button.active {
     font-weight: 600;
   }
 
-  .evaluation-navigation .page-listing li:nth-child(1) button div {
-    transform: translateX(11px);
-  }
-
-  .evaluation-navigation .page-listing li:nth-child(4) button div {
-    transform: translateX(1.5px);
-  }
-
-  .evaluation-navigation .page-listing li:nth-child(5) button div {
-    transform: translateX(-0.5px);
-  }
-
-  .evaluation-navigation .page-listing li:nth-child(6) button div {
-    transform: translateX(6px);
-  }
-
-  .evaluation-navigation .page-listing li:nth-child(7) button div {
-    transform: translateX(-2.5px);
-  }
-
-  .evaluation-navigation .page-listing li:nth-child(8) button div {
-    transform: translateX(13px);
+  .evaluation-navigation .page-listing button.active div {
+    background: #fafafa;
+    color: #321c58;
+    box-shadow: none;
   }
 }
 
@@ -497,22 +500,14 @@ body {
 }
 
 .questionnaire__meta {
-  display: flex;
-  justify-content: center;
   margin: 0 0 14px;
   color: #817889;
   font-family: var(--font-poppins), sans-serif;
   font-size: 11px;
   font-weight: 600;
-  gap: 12px;
   letter-spacing: 0.04em;
+  text-align: center;
   text-transform: uppercase;
-}
-
-.questionnaire__meta span + span::before {
-  margin-right: 12px;
-  color: #c2bbc7;
-  content: "•";
 }
 
 .questionnaire__title {

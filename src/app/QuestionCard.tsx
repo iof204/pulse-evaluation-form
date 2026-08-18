@@ -3,7 +3,6 @@
 import type { CSSProperties } from "react";
 import {
   evaluationQuestions,
-  evaluationSections,
   type AnswerOption,
   type EvaluationQuestion,
 } from "./questionnaireData";
@@ -27,18 +26,13 @@ export default function QuestionCard({
   onToggleValue,
   onShowDetails,
 }: QuestionCardProps) {
-  const section = evaluationSections.find(({ id }) => id === question.sectionId);
-
   return (
     <section
       className={`questionnaire questionnaire--${phase}`}
       aria-labelledby="question-title"
     >
       <p className="questionnaire__meta">
-        <span>{section?.label}</span>
-        <span>
-          Question {question.id} of {evaluationQuestions.length}
-        </span>
+        {question.id}/{evaluationQuestions.length}
       </p>
       <h1 id="question-title" className="questionnaire__title">
         {question.title}

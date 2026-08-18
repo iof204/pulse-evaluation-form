@@ -153,7 +153,9 @@ export default function Header() {
                   onClick={() => openSection(section.id)}
                 >
                   <div>
-                    {String(section.id).padStart(2, "0")} {section.label}
+                    {section.number !== null &&
+                      `${String(section.number).padStart(2, "0")} `}
+                    {section.label}
                   </div>
                 </button>
               </li>

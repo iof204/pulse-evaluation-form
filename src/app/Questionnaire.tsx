@@ -67,7 +67,7 @@ export default function Questionnaire() {
       announceQuestion(nextIndex);
     }
 
-    const initialIndex = indexFromUrl();
+    const initialIndex = 0;
     updateUrl(initialIndex, "replace");
     let isActive = true;
     queueMicrotask(() => {
@@ -157,7 +157,7 @@ export default function Questionnaire() {
           type="button"
           className="questionnaire__back"
           disabled={questionIndex === 0 || phase !== "idle"}
-          onClick={() => moveToQuestion(questionIndex - 1, false)}
+          onClick={() => moveToQuestion(questionIndex - 1)}
         >
           <svg
             aria-hidden="true"

@@ -17,14 +17,14 @@ export type EvaluationQuestion = {
 };
 
 export const evaluationSections = [
-  { id: 1, label: "Goals", questionIds: [1, 2, 3] },
-  { id: 2, label: "Brand", questionIds: [4, 5] },
-  { id: 3, label: "Audience", questionIds: [6, 7] },
-  { id: 4, label: "Offers", questionIds: [8, 9] },
-  { id: 5, label: "Journey", questionIds: [10, 11] },
-  { id: 6, label: "Visibility", questionIds: [12, 13] },
-  { id: 7, label: "Mix", questionIds: [14, 15, 16, 17] },
-  { id: 8, label: "Follow-Through", questionIds: [18, 19] },
+  { id: 1, number: 0, label: "Goals", questionIds: [1, 2, 3] },
+  { id: 2, number: 1, label: "Brand", questionIds: [4, 5] },
+  { id: 3, number: 2, label: "Audience", questionIds: [6, 7] },
+  { id: 4, number: 3, label: "Purpose", questionIds: [8, 9] },
+  { id: 5, number: 4, label: "Journey", questionIds: [10, 11] },
+  { id: 6, number: 5, label: "Visibility", questionIds: [12, 13] },
+  { id: 7, number: 6, label: "Mix", questionIds: [14, 15, 16, 17] },
+  { id: 8, number: 7, label: "Retention", questionIds: [18, 19] },
 ] as const;
 
 const option = (
