@@ -104,10 +104,51 @@ export default function ResultsPage({
   compact?: boolean;
 }) {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [copiedEvaluationLink, setCopiedEvaluationLink] = useState(false);
   const [showSocialMenu, setShowSocialMenu] = useState(false);
   const [showFullResultsModal, setShowFullResultsModal] = useState(false);
   const socialMenuRef = useRef<HTMLDivElement>(null);
+
+  async function submitFullResults(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setSubmitError("");
+    const data = new FormData(event.currentTarget);
+    const value = (...names: string[]) => {
+      for (const name of names) {
+        const field = data.get(name);
+        if (typeof field === "string" && field) return field;
+      }
+      return "";
+    };
+
+    try {
+      const response = await fetch("/api/results-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: value("firstName", "modalFirstName"),
+          email: value("email", "modalEmail"),
+          businessName: value("businessName", "modalBusinessName"),
+          industry: value("industry", "modalIndustry"),
+          marketingConsent:
+            data.has("marketingConsent") || data.has("modalMarketingConsent"),
+          responses,
+        }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Unable to send results.");
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Unable to send results.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     if (!showSocialMenu) return;
@@ -275,7 +316,7 @@ export default function ResultsPage({
                 Your detailed results are on the way.
               </p>
             ) : (
-              <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+              <form onSubmit={submitFullResults}>
                 <div className="results-form-grid">
                   <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
                   <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
@@ -284,7 +325,8 @@ export default function ResultsPage({
                 </div>
                 <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
                 <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Send me occasional Ecko updates.</span></label>
-                <button className="questionnaire__continue" type="submit">Email My Results</button>
+                <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
+                {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
               </form>
             )}
           </section>
@@ -367,7 +409,7 @@ export default function ResultsPage({
                   Your detailed results are on the way.
                 </p>
               ) : (
-                <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+                <form onSubmit={submitFullResults}>
                   <div className="results-form-grid">
                     <label>First Name<input name="modalFirstName" autoComplete="given-name" required /></label>
                     <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
@@ -376,7 +418,8 @@ export default function ResultsPage({
                   </div>
                   <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
                   <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Send me occasional Ecko updates.</span></label>
-                  <button className="questionnaire__continue" type="submit">Email My Results</button>
+                  <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
+                  {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
                 </form>
               )}
             </section>
@@ -467,7 +510,7 @@ export default function ResultsPage({
               Your detailed results are on the way.
             </p>
           ) : (
-            <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+            <form onSubmit={submitFullResults}>
               <div className="results-form-grid">
                 <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
                 <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
@@ -477,7 +520,8 @@ export default function ResultsPage({
               <label className="results-check"><input type="checkbox" required /><span>By submitting, you agree to receive your requested results and acknowledge our <a href="/privacy-policy">Privacy Policy</a>.</span></label>
               <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d also like occasional practical marketing tips, resources, and Ecko updates.</span></label>
               <p className="results-email-minimal__note">We&apos;ll use your email to send the results you requested. No surprise newsletter signup.</p>
-              <button className="questionnaire__continue" type="submit">Send Me My Detailed Results</button>
+              <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Send Me My Detailed Results"}</button>
+              {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
             </form>
           )}
         </section>

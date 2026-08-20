@@ -2575,6 +2575,14 @@ body {
   font-weight: 600;
 }
 
+.results-email-minimal__error {
+  margin: 0;
+  color: #c23b3b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .results-strategy-minimal {
   margin-top: 72px;
   text-align: center;
