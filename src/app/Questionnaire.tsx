@@ -279,11 +279,7 @@ export default function Questionnaire({
         );
       };
 
-      if (compactResults) {
-        transitionTimer.current = setTimeout(announceResults, 560);
-      } else {
-        announceResults();
-      }
+      announceResults();
     };
 
     transitionTimer.current = setTimeout(() => {
@@ -466,13 +462,11 @@ export default function Questionnaire({
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.8"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M9 18h6" />
-          <path d="M10 22h4" />
-          <path d="M8.7 14.4A6 6 0 1 1 15.3 14.4C14.5 15 14 15.8 14 17h-4c0-1.2-.5-2-1.3-2.6Z" />
+          <path d="M12 3v1M3 12h1m16 0h1M5.6 5.6l.7.7m12.1-.7-.7.7M9 16a5 5 0 1 1 6 0c-.64.58-1 1.3-1 2.2V19a2 2 0 0 1-4 0v-.8c0-.9-.36-1.62-1-2.2Zm.7 1.5h4.6" />
         </svg>
         {hasSectionNotification && (
           <span className="section-intro-launcher__badge">1</span>

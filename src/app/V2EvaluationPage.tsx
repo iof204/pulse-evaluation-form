@@ -124,6 +124,17 @@ function VideoRail() {
 
       if (nextQuestion === activeQuestionRef.current) return;
 
+      if (event.type === "evaluationresults") {
+        transitionTimers.current.forEach(clearTimeout);
+        activeQuestionRef.current = nextQuestion;
+        setActiveQuestion(nextQuestion);
+        setTransitionPhase("in");
+        transitionTimers.current = [
+          setTimeout(() => setTransitionPhase("idle"), 440),
+        ];
+        return;
+      }
+
       if (event.type === "evaluationvideotransition") {
         transitionTimers.current.forEach(clearTimeout);
         setTransitionPhase("out");
