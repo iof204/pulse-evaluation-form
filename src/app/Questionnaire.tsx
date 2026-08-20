@@ -14,7 +14,7 @@ type SectionIntro = { title: string; description: string };
 
 const sectionIntros: Record<number, SectionIntro> = {
   1: {
-    title: "Goals",
+    title: "Section, Goals",
     description: "These first three questions are not scored. They help make the results more relevant to your business, goals, and current stage.",
   },
   2: {
@@ -133,8 +133,16 @@ export default function Questionnaire({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const sectionIntroButtonRef = useRef<HTMLButtonElement | null>(null);
   const question = evaluationQuestions[questionIndex];
+  const previousSectionId = useRef(question.sectionId);
+  const sectionPulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isSectionLauncherPulsing, setIsSectionLauncherPulsing] = useState(false);
+  const [badgeReadySection, setBadgeReadySection] = useState<number | null>(
+    question.sectionId,
+  );
   const sectionIntro = sectionIntros[question.sectionId];
-  const hasSectionNotification = !seenSectionIntros.has(question.sectionId);
+  const hasSectionNotification =
+    badgeReadySection === question.sectionId &&
+    !seenSectionIntros.has(question.sectionId);
   const selectedValues = responses[question.id] ?? [];
   const canContinue = selectedValues.length > 0;
   const detailText = answerDetails
@@ -152,6 +160,29 @@ export default function Questionnaire({
     if (!compactResults) return;
     introTimer.current = setTimeout(() => setShowIntroLoading(false), 1400);
   }, [compactResults]);
+
+  useEffect(() => {
+    if (previousSectionId.current === question.sectionId) return;
+    previousSectionId.current = question.sectionId;
+
+    if (sectionPulseTimer.current) clearTimeout(sectionPulseTimer.current);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsSectionLauncherPulsing(false);
+      setBadgeReadySection(question.sectionId);
+      return;
+    }
+
+    setBadgeReadySection(null);
+    setIsSectionLauncherPulsing(true);
+    sectionPulseTimer.current = setTimeout(() => {
+      setIsSectionLauncherPulsing(false);
+      setBadgeReadySection(question.sectionId);
+    }, 720);
+
+    return () => {
+      if (sectionPulseTimer.current) clearTimeout(sectionPulseTimer.current);
+    };
+  }, [question.sectionId]);
 
   useEffect(() => {
     function showQuestionFromUrl() {
@@ -457,13 +488,14 @@ export default function Questionnaire({
 
       <button
         type="button"
-        className="section-intro-launcher"
+        className={`section-intro-launcher${isSectionLauncherPulsing ? " section-intro-launcher--pulse" : ""}`}
         aria-label={`${isSectionIntroOpen ? "Close" : "Open"} ${sectionIntro.title} introduction`}
         aria-expanded={isSectionIntroOpen}
         onClick={() => {
           const nextOpenState = !isSectionIntroOpen;
           setIsSectionIntroOpen(nextOpenState);
           if (nextOpenState) {
+            setBadgeReadySection(null);
             setSeenSectionIntros((current) => {
               const next = new Set(current);
               next.add(question.sectionId);
