@@ -2084,7 +2084,9 @@ body {
 
   .v2-question-panel .questionnaire__choice-list,
   .v2-question-panel .questionnaire__choice-list--single {
-    max-height: min(430px, 55vh);
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
   }
 
   .questionnaire--entering .questionnaire__title {
