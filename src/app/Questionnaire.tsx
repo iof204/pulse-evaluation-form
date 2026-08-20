@@ -10,35 +10,65 @@ import {
 
 type TransitionPhase = "idle" | "exiting" | "entering";
 type Responses = Record<number, string[]>;
+type SectionIntro = { title: string; description: string };
 
-const actionTitles: Record<string, string> = {
-  Build: "Building",
-  Generate: "Generating",
-  Increase: "Increasing",
-  Support: "Supporting",
-  Improve: "Improving",
-  Strengthen: "Strengthening",
-  Become: "Becoming",
-  Clarify: "Clarifying",
-  Review: "Reviewing",
-  Rely: "Relying",
+const sectionIntros: Record<number, SectionIntro> = {
+  1: {
+    title: "Goals",
+    description: "These first three questions are not scored. They help make the results more relevant to your business, goals, and current stage.",
+  },
+  2: {
+    title: "Section 1, Brand",
+    description: "Let’s look at whether the heart of your brand stays clear and recognizable, even when the format, campaign, or channel changes.",
+  },
+  3: {
+    title: "Section 2, Audience",
+    description: "This section looks at whether your marketing is shaped by the people you want to reach—not just what the business wants to say.",
+  },
+  4: {
+    title: "Section 3, Purpose",
+    description: "Marketing gets easier to measure when everyone knows what it is supposed to accomplish.",
+  },
+  5: {
+    title: "Section 4, Journey",
+    description: "Now let’s look at how people move from discovering your business to understanding it, trusting it, and taking action.",
+  },
+  6: {
+    title: "Section 5, Visibility",
+    description: "This is not about being everywhere. It is about whether your campaigns, promotions, content, partnerships, and visibility efforts are planned with purpose.",
+  },
+  7: {
+    title: "Section 6, Mix",
+    description: "These questions look at whether digital, traditional, community, sponsorship, partnership, and in-person efforts support one shared strategy—and whether you can learn from the results.",
+  },
+  8: {
+    title: "Section 7, Retention",
+    description: "Getting attention is only part of the job. This section looks at how your business follows through with interested customers—and how you stay connected after they buy, book, visit, or work with you.",
+  },
 };
 
-const detailPriorities: Record<number, string> = {
-  1: "Prioritizing context that keeps the recommendations ahead practical and relevant to your business.",
-  2: "Prioritizing a recognizable message and brand experience across every customer touchpoint.",
-  3: "Prioritizing a clearer understanding of the people you most want to reach and what matters to them.",
-  4: "Prioritizing marketing activity that connects to a defined purpose instead of the need of the moment.",
-  5: "Prioritizing a customer journey that makes the offer, next step, and path forward easier to understand.",
-  6: "Prioritizing intentional planning around the right message, timing, audience, and places to show up.",
-  7: "Prioritizing a connected channel mix and clearer signals about what deserves repeating or changing.",
-  8: "Prioritizing reliable follow-through that turns interest into action and first-time customers into lasting relationships.",
+const questionDetailContext: Record<number, string> = {
+  2: "This describes the basic operating model of the business—what it delivers, how customers receive it, and how revenue is generally created.",
+  3: "This describes the business’s current stage and the kind of change or momentum shaping its marketing needs right now.",
+  4: "In this question, the answer reflects how consistently a customer would understand the same core value across different marketing touchpoints.",
+  5: "Here, the answer describes how recognizable the business would feel when different marketing pieces are viewed together.",
+  6: "For this question, the answer shows how specifically the business has defined the people its marketing is primarily meant to reach.",
+  7: "Here, the answer describes the information the business most often relies on when deciding what to say, offer, or publish.",
+  8: "For this question, the answer reflects how clearly current marketing activity is organized around a specific business outcome.",
+  9: "Here, the answer describes how deliberately each message is connected to a purpose, channel, desired response, and next step.",
+  10: "For this question, the answer reflects how much explanation a new customer needs before understanding the offer and knowing how to move forward.",
+  11: "Here, the answer describes how visible the customer journey is to the business, especially at moments of confusion, hesitation, or drop-off.",
+  12: "For this question, the answer reflects what is intentionally decided before a larger marketing effort begins and what is left to develop along the way.",
+  13: "Here, the answer describes what drives the timing and placement of marketing activity—from a planned rhythm to a response to immediate needs.",
+  16: "For this question, the answer reflects whether each channel has a defined role within one connected marketing approach or operates mostly on its own.",
+  17: "Here, the answer describes the evidence the business uses to understand performance and decide what should happen differently next time.",
+  18: "For this question, the answer reflects how consistently customer interest is captured, followed up on, and guided toward a clear next step.",
+  19: "Here, the answer describes how intentionally the business maintains the customer relationship after the initial purchase, visit, booking, or service.",
 };
 
-function detailTitle(label: string) {
-  const [firstWord, ...rest] = label.split(" ");
-  const action = actionTitles[firstWord];
-  return action ? `${action}${rest.length ? ` ${rest.join(" ")}` : ""}` : label;
+function answerDetailText(questionId: number, answer: AnswerOption) {
+  const context = questionDetailContext[questionId];
+  return context ? `${answer.description} ${context}` : answer.description;
 }
 
 function indexFromUrl() {
@@ -92,12 +122,22 @@ export default function Questionnaire({
   const [showResultsLoading, setShowResultsLoading] = useState(false);
   const [showIntroLoading, setShowIntroLoading] = useState(compactResults);
   const [answerDetails, setAnswerDetails] = useState<AnswerOption | null>(null);
+  const [isSectionIntroOpen, setIsSectionIntroOpen] = useState(false);
+  const [seenSectionIntros, setSeenSectionIntros] = useState<Set<number>>(
+    () => new Set(),
+  );
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const introTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const sectionIntroButtonRef = useRef<HTMLButtonElement | null>(null);
   const question = evaluationQuestions[questionIndex];
+  const sectionIntro = sectionIntros[question.sectionId];
+  const hasSectionNotification = !seenSectionIntros.has(question.sectionId);
   const selectedValues = responses[question.id] ?? [];
   const canContinue = selectedValues.length > 0;
+  const detailText = answerDetails
+    ? answerDetailText(question.id, answerDetails)
+    : null;
 
   useEffect(() => {
     return () => {
@@ -115,6 +155,7 @@ export default function Questionnaire({
     function showQuestionFromUrl() {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
       const nextIndex = indexFromUrl();
+      setIsSectionIntroOpen(false);
       setShowResults(false);
       setShowResultsLoading(false);
       setQuestionIndex(nextIndex);
@@ -169,6 +210,7 @@ export default function Questionnaire({
 
   function moveToQuestion(nextIndex: number, animate = true) {
     if (phase !== "idle" || nextIndex === questionIndex) return;
+    setIsSectionIntroOpen(false);
 
     if (!animate) {
       updateUrl(nextIndex);
@@ -257,6 +299,8 @@ export default function Questionnaire({
   }
 
   function restartEvaluation() {
+    setSeenSectionIntros(new Set());
+    setIsSectionIntroOpen(false);
     setResponses({});
     setShowResults(false);
     setShowResultsLoading(false);
@@ -324,11 +368,8 @@ export default function Questionnaire({
             >
               {answerDetails && (
                 <>
-                  <h2>{detailTitle(answerDetails.label)}</h2>
-                  <p>
-                    {answerDetails.description}
-                    {question.id !== 1 && ` ${detailPriorities[question.sectionId]}`}
-                  </p>
+                  <h2>About this answer</h2>
+                  <p>{detailText}</p>
                   <button type="button" onClick={() => setAnswerDetails(null)}>
                     Got it
                   </button>
@@ -382,6 +423,62 @@ export default function Questionnaire({
         </button>
       </div>
 
+      {isSectionIntroOpen && (
+        <aside
+          className="section-intro-toast"
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="section-intro-title"
+          aria-describedby="section-intro-description"
+        >
+          <h2 id="section-intro-title">{sectionIntro.title}</h2>
+          <p id="section-intro-description">{sectionIntro.description}</p>
+          <button
+            ref={sectionIntroButtonRef}
+            type="button"
+            onClick={() => setIsSectionIntroOpen(false)}
+          >
+            Got it
+          </button>
+        </aside>
+      )}
+
+      <button
+        type="button"
+        className="section-intro-launcher"
+        aria-label={`${isSectionIntroOpen ? "Close" : "Open"} ${sectionIntro.title} introduction`}
+        aria-expanded={isSectionIntroOpen}
+        onClick={() => {
+          const nextOpenState = !isSectionIntroOpen;
+          setIsSectionIntroOpen(nextOpenState);
+          if (nextOpenState) {
+            setSeenSectionIntros((current) => {
+              const next = new Set(current);
+              next.add(question.sectionId);
+              return next;
+            });
+            requestAnimationFrame(() => sectionIntroButtonRef.current?.focus());
+          }
+        }}
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 18h6" />
+          <path d="M10 22h4" />
+          <path d="M8.7 14.4A6 6 0 1 1 15.3 14.4C14.5 15 14 15.8 14 17h-4c0-1.2-.5-2-1.3-2.6Z" />
+        </svg>
+        {hasSectionNotification && (
+          <span className="section-intro-launcher__badge">1</span>
+        )}
+      </button>
+
       {answerDetails && !inlineAnswerDetails && (
         <div
           className="answer-dialog__backdrop"
@@ -406,13 +503,10 @@ export default function Questionnaire({
               ×
             </button>
             <h2 id="answer-dialog-title" className="answer-dialog__title">
-              About “{answerDetails.label}”
+              About this answer
             </h2>
-            <p
-              id="answer-dialog-description"
-              className="answer-dialog__description"
-            >
-              {answerDetails.description}
+            <p id="answer-dialog-description" className="answer-dialog__description">
+              {detailText}
             </p>
             <button
               type="button"

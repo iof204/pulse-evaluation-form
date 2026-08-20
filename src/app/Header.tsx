@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   evaluationQuestions,
   evaluationSections,
@@ -12,6 +12,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const [activeSection, setActiveSection] = useState<number | null>(1);
+  const navigationScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const updateStickyState = () => setIsStuck(window.scrollY > 0);
@@ -21,6 +22,28 @@ export default function Header() {
 
     return () => window.removeEventListener("scroll", updateStickyState);
   }, []);
+
+  useEffect(() => {
+    if (activeSection === null || !window.matchMedia("(max-width: 967px)").matches) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      const scroller = navigationScrollRef.current;
+      const activeItem = scroller?.querySelector<HTMLElement>(
+        ".page-listing button.active",
+      );
+      if (!scroller || !activeItem) return;
+
+      const activeListItem = activeItem.closest<HTMLElement>("li");
+      scroller.scrollTo({
+        left: activeListItem?.offsetLeft ?? activeItem.offsetLeft,
+        behavior: "smooth",
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [activeSection]);
 
   useEffect(() => {
     function sectionFromQuestion(questionId: number) {
@@ -117,8 +140,11 @@ export default function Header() {
             <small>Discover your marketing rhythm</small>
           </span>
           <span className="evaluation-badge__time">
-            <strong>≈ 5</strong>
-            <small>min</small>
+            <strong><span className="evaluation-badge__approximation">≈ </span>5</strong>
+            <small>
+              <span className="evaluation-badge__minute-short">min</span>
+              <span className="evaluation-badge__minute-full">minute</span>
+            </small>
           </span>
         </div>
 
@@ -129,6 +155,7 @@ export default function Header() {
         aria-label="Site"
       >
         <div
+          ref={navigationScrollRef}
           className="inner-wrap"
           onClick={(event) => {
             if (event.target === event.currentTarget) closeMenu();

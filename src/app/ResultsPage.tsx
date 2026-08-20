@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { evaluationQuestions } from "./questionnaireData";
 import {
   perspectiveCopy,
@@ -103,9 +104,9 @@ export default function ResultsPage({
   compact?: boolean;
 }) {
   const [submitted, setSubmitted] = useState(false);
-  const [openLevel, setOpenLevel] = useState<ResultLevel | null>(null);
   const [copiedEvaluationLink, setCopiedEvaluationLink] = useState(false);
   const [showSocialMenu, setShowSocialMenu] = useState(false);
+  const [showFullResultsModal, setShowFullResultsModal] = useState(false);
   const socialMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,6 +128,22 @@ export default function ResultsPage({
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [showSocialMenu]);
+
+  useEffect(() => {
+    if (!showFullResultsModal) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowFullResultsModal(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [showFullResultsModal]);
   const evaluated = evaluateSections(responses);
   const counts = evaluated.reduce<Record<ResultLevel, number>>(
     (total, section) => ({
@@ -142,22 +159,9 @@ export default function ResultsPage({
       { level: "building", label: "Building Momentum" },
       { level: "needs-love", label: "Needs a Little Love" },
     ];
-    const activeCategory = categories.find(({ level }) => level === openLevel);
-    const activeSections = openLevel
-      ? evaluated.filter(({ level }) => level === openLevel)
-      : [];
-    const visibleSections = activeSections.slice(0, 1);
-    const gatedSections = activeSections.slice(1);
     const evaluationShareCopy =
       "Take the Ecko Marketing Pulse Evaluation—a quick check-in to see what's working, what's building momentum, and what could use a little love.";
-    const scrollToFullResults = () => {
-      setOpenLevel(null);
-      window.setTimeout(() => {
-        document
-          .getElementById("compact-full-results")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 320);
-    };
+    const openFullResultsModal = () => setShowFullResultsModal(true);
     const copyEvaluationLink = async () => {
       const shareUrl = new URL(window.location.href);
       shareUrl.search = "";
@@ -174,98 +178,85 @@ export default function ResultsPage({
           </header>
 
           <section className="results-block" aria-label="Marketing results">
-            <div className={`results-category-flip${openLevel ? " results-category-flip--turned" : ""}`}>
-              <div className="results-category-flip__inner">
-                <div className="results-category-flip__front">
-                  {categories.map(({ level, label }) => (
-                    <div className="results-category-row" key={level}>
-                      <span>
-                        <strong>{label}</strong>
-                        <small>{counts[level]} {counts[level] === 1 ? "area" : "areas"}</small>
-                      </span>
-                      <button
-                        type="button"
-                        aria-label={`View ${label} details`}
-                        onClick={() => setOpenLevel(level)}
-                      >
-                        <span aria-hidden="true" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+            <div className="results-expanded-cards">
+              {categories.map(({ level, label }) => {
+                const sections = evaluated.filter((section) => section.level === level);
+                const visibleSection = sections[0];
+                const gatedSections = sections.slice(1);
 
-                <section className="results-category-flip__back" aria-hidden={!openLevel}>
-                  <header>
-                    <div>
-                      <h3>{activeCategory?.label}</h3>
-                      <p>{activeSections.length} {activeSections.length === 1 ? "area" : "areas"}</p>
-                    </div>
-                    <button
-                      className="results-full-results-cta"
-                      type="button"
-                      onClick={scrollToFullResults}
-                    >
-                      See My Full Evaluation
-                      <i className="fas fa-paper-plane" aria-hidden="true" />
-                    </button>
-                  </header>
-                  <div className="results-category-details">
-                    {visibleSections.length ? visibleSections.map((section) => {
-                      const snapshot = section.snapshots[section.level];
-                      return (
-                        <article key={section.key}>
-                          <h4>{section.name}</h4>
-                          <p>{section.reminder}</p>
-                          <strong>What we&apos;re seeing</strong>
-                          <p>{snapshot.seeing}</p>
-                          <strong>Why it matters</strong>
-                          <p>{snapshot.matters}</p>
-                        </article>
-                      );
-                    }) : (
-                      <p className="results-category-details__empty">No areas landed here this time.</p>
-                    )}
-                    <div className="results-gated-preview">
-                      <div className="results-gated-preview__content" aria-hidden="true">
-                        {gatedSections.length > 0 ? (
-                          gatedSections.slice(0, 2).map((section) => {
-                            const snapshot = section.snapshots[section.level];
-                            return (
-                              <article key={section.key}>
-                                <h4>{section.name}</h4>
-                                <p>{section.reminder}</p>
-                                <strong>What we&apos;re seeing</strong>
-                                <p>{snapshot.seeing}</p>
-                              </article>
-                            );
-                          })
-                        ) : (
-                          <article className="results-gated-preview__placeholder">
-                            <h4>Your Complete Marketing Pulse</h4>
-                            <p>A closer look at every area of your evaluation.</p>
-                            <strong>What we&apos;re seeing</strong>
-                            <p>Your full results include the context, patterns, and next considerations behind your snapshot.</p>
-                          </article>
-                        )}
+                return (
+                  <section className="results-expanded-card" key={level}>
+                    <header>
+                      <div>
+                        <h3>{label}</h3>
+                        <p>{counts[level]} {counts[level] === 1 ? "area" : "areas"}</p>
                       </div>
                       <button
-                        className="results-full-results-cta results-gated-preview__cta"
+                        className="results-full-results-cta"
                         type="button"
-                        onClick={scrollToFullResults}
+                        onClick={openFullResultsModal}
                       >
                         See My Full Evaluation
+                        <i className="fas fa-paper-plane" aria-hidden="true" />
                       </button>
+                    </header>
+
+                    <div className="results-category-details results-expanded-card__details">
+                      {visibleSection ? (() => {
+                        const snapshot = visibleSection.snapshots[visibleSection.level];
+                        return (
+                          <article>
+                            <h4>{visibleSection.name}</h4>
+                            <p>{visibleSection.reminder}</p>
+                            <strong>What we&apos;re seeing</strong>
+                            <p>{snapshot.seeing}</p>
+                            <strong>Why it matters</strong>
+                            <p>{snapshot.matters}</p>
+                          </article>
+                        );
+                      })() : (
+                        <p className="results-category-details__empty">
+                          {level === "needs-love"
+                            ? "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage."
+                            : "No areas landed here this time."}
+                        </p>
+                      )}
+
+                      <div className="results-gated-preview">
+                        <div className="results-gated-preview__content" aria-hidden="true">
+                          {gatedSections.length > 0 ? (
+                            gatedSections.slice(0, 2).map((section) => {
+                              const snapshot = section.snapshots[section.level];
+                              return (
+                                <article key={section.key}>
+                                  <h4>{section.name}</h4>
+                                  <p>{section.reminder}</p>
+                                  <strong>What we&apos;re seeing</strong>
+                                  <p>{snapshot.seeing}</p>
+                                </article>
+                              );
+                            })
+                          ) : (
+                            <article className="results-gated-preview__placeholder">
+                              <h4>Your Complete Marketing Pulse</h4>
+                              <p>A closer look at every area of your evaluation.</p>
+                              <strong>What we&apos;re seeing</strong>
+                              <p>Your full results include the context, patterns, and next considerations behind your snapshot.</p>
+                            </article>
+                          )}
+                        </div>
+                        <button
+                          className="results-full-results-cta results-gated-preview__cta"
+                          type="button"
+                          onClick={openFullResultsModal}
+                        >
+                          See My Full Evaluation
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      className="results-category-details__done"
-                      type="button"
-                      onClick={() => setOpenLevel(null)}
-                    >
-                      Got it
-                    </button>
-                  </div>
-                </section>
-              </div>
+                  </section>
+                );
+              })}
             </div>
           </section>
 
@@ -345,6 +336,52 @@ export default function ResultsPage({
           </footer>
 
         </div>
+
+        {showFullResultsModal && createPortal(
+          <div
+            className="results-full-results-modal"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setShowFullResultsModal(false);
+            }}
+          >
+            <section
+              className="results-full-results-modal__dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="full-results-modal-title"
+            >
+              <button
+                className="results-full-results-modal__close"
+                type="button"
+                aria-label="Close full evaluation form"
+                onClick={() => setShowFullResultsModal(false)}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+              <header>
+                <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
+              </header>
+              {submitted ? (
+                <p className="results-full-results-modal__success" role="status">
+                  Your detailed results are on the way.
+                </p>
+              ) : (
+                <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+                  <div className="results-form-grid">
+                    <label>First Name<input name="modalFirstName" autoComplete="given-name" required /></label>
+                    <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
+                    <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
+                    <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
+                  </div>
+                  <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+                  <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Send me occasional Ecko updates.</span></label>
+                  <button className="questionnaire__continue" type="submit">Email My Results</button>
+                </form>
+              )}
+            </section>
+          </div>
+        , document.body)}
       </main>
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   evaluationQuestions,
   type AnswerOption,
@@ -28,6 +28,8 @@ export default function QuestionCard({
   onShowDetails,
   showSectionProgress = false,
 }: QuestionCardProps) {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [hasLongTitle, setHasLongTitle] = useState(false);
   const sectionQuestions = evaluationQuestions.filter(
     ({ sectionId }) => sectionId === question.sectionId,
   );
@@ -49,6 +51,25 @@ export default function QuestionCard({
     </div>
   ) : null;
 
+  useLayoutEffect(() => {
+    const title = titleRef.current;
+    if (!title) return;
+
+    const measureTitle = () => {
+      title.classList.remove("questionnaire__title--long");
+      const lineHeight = Number.parseFloat(getComputedStyle(title).lineHeight);
+      const isLong = title.getBoundingClientRect().height > lineHeight * 3 + 1;
+      title.classList.toggle("questionnaire__title--long", isLong);
+      setHasLongTitle(isLong);
+    };
+
+    measureTitle();
+    window.addEventListener("resize", measureTitle);
+    void document.fonts.ready.then(measureTitle);
+
+    return () => window.removeEventListener("resize", measureTitle);
+  }, [question.id]);
+
   return (
     <section
       className={`questionnaire questionnaire--${phase}`}
@@ -57,7 +78,11 @@ export default function QuestionCard({
       <p className="questionnaire__meta">
         {sectionQuestionIndex + 1} / {sectionQuestions.length}
       </p>
-      <h1 id="question-title" className="questionnaire__title">
+      <h1
+        ref={titleRef}
+        id="question-title"
+        className={`questionnaire__title${hasLongTitle ? " questionnaire__title--long" : ""}`}
+      >
         {question.title}
       </h1>
       <p className="questionnaire__instruction">
@@ -67,30 +92,33 @@ export default function QuestionCard({
       </p>
 
       {question.kind === "buttons" && (
-        <div className="questionnaire__answers" role="radiogroup">
+        <div
+          className="questionnaire__choice-list questionnaire__choice-list--single"
+          role="radiogroup"
+          aria-label="Choose one answer"
+        >
           {progressBar}
-          {question.answers.map((answer, index) => {
+          {question.answers.map((answer) => {
             const isSelected = selectedValues.includes(answer.id);
 
             return (
-              <div
-                key={answer.id}
-                style={{ "--answer-index": index } as CSSProperties}
-                className={`questionnaire__answer-wrap${isSelected ? " questionnaire__answer-wrap--selected" : " questionnaire__answer-wrap--unselected"}`}
-              >
+              <div className="questionnaire__choice-row" key={answer.id}>
+                <label>
+                  <input
+                    type="radio"
+                    name={`question-${question.id}`}
+                    value={answer.id}
+                    checked={isSelected}
+                    disabled={phase !== "idle"}
+                    onChange={() => onChooseButton(answer)}
+                  />
+                  <span>
+                    <strong>{answer.label}</strong>
+                  </span>
+                </label>
                 <button
                   type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  disabled={phase !== "idle"}
-                  className={`questionnaire__answer${isSelected ? " questionnaire__answer--selected" : " questionnaire__answer--unselected"}`}
-                  onClick={() => onChooseButton(answer)}
-                >
-                  {answer.label}
-                </button>
-                <button
-                  type="button"
-                  className="questionnaire__answer-info"
+                  className="questionnaire__choice-info"
                   aria-label={`Learn more about “${answer.label}”`}
                   disabled={phase !== "idle"}
                   onClick={() => onShowDetails(answer)}
