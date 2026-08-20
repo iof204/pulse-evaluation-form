@@ -1,18 +1,22 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { ACCESS_COOKIE, createAccessToken } from "./lib/siteAccess";
 
-const ACCESS_COOKIE = "ecko_pulse_access";
-
-async function accessToken(password: string) {
-  const bytes = new TextEncoder().encode(`ecko-marketing-pulse:${password}`);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
+function secure(response: NextResponse) {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+  response.headers.set("Content-Security-Policy", "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  }
+  return response;
 }
 
 export async function proxy(request: NextRequest) {
   const password = process.env.SITE_PASSWORD;
-  if (!password) return NextResponse.next();
+  const secret = process.env.SITE_ACCESS_SECRET;
+  if (!password || !secret) return secure(NextResponse.next());
 
   const { pathname } = request.nextUrl;
   if (
@@ -21,19 +25,23 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/_next/") ||
     pathname === "/favicon.ico"
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    if (pathname === "/access" || pathname === "/api/site-access") {
+      response.headers.set("Cache-Control", "no-store, max-age=0");
+    }
+    return secure(response);
   }
 
-  const expectedToken = await accessToken(password);
+  const expectedToken = await createAccessToken(password, secret);
   if (request.cookies.get(ACCESS_COOKIE)?.value === expectedToken) {
-    return NextResponse.next();
+    return secure(NextResponse.next());
   }
 
   const accessUrl = request.nextUrl.clone();
   accessUrl.pathname = "/access";
   accessUrl.search = "";
   accessUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
-  return NextResponse.redirect(accessUrl);
+  return secure(NextResponse.redirect(accessUrl));
 }
 
 export const config = {
