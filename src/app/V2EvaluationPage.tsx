@@ -23,6 +23,7 @@ function QuestionVideo({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -32,9 +33,13 @@ function QuestionVideo({
       return;
     }
     if (!window.matchMedia("(max-width: 967px)").matches) return;
-    video.muted = true;
+    video.muted = false;
     void video.play().catch(() => {
-      // Mobile browsers may still defer playback when battery/data saving is active.
+      video.muted = true;
+      setIsMuted(true);
+      void video.play().catch(() => {
+        // Mobile browsers may still defer playback when battery/data saving is active.
+      });
     });
   }, [active]);
 
@@ -55,6 +60,14 @@ function QuestionVideo({
     await video.play();
   }
 
+  async function toggleSound() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+    if (video.paused) await video.play();
+  }
+
   return (
     <>
       <video
@@ -69,6 +82,21 @@ function QuestionVideo({
         onEnded={() => setIsPlaying(false)}
       />
       <div className="v2-video-card__controls">
+        <button
+          type="button"
+          className="v2-video-card__control"
+          aria-label={isMuted ? "Turn video sound on" : "Mute video"}
+          onClick={toggleSound}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+            {isMuted ? (
+              <><path d="m16 9 5 6" /><path d="m21 9-5 6" /></>
+            ) : (
+              <><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18 6a8.5 8.5 0 0 1 0 12" /></>
+            )}
+          </svg>
+        </button>
         <button
           type="button"
           className="v2-video-card__control"

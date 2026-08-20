@@ -2082,8 +2082,37 @@ body {
     font-size: 14px;
   }
 
+  .v2-question-panel .questionnaire__choice-list,
+  .v2-question-panel .questionnaire__choice-list--single {
+    max-height: min(430px, 55vh);
+  }
+
+  .questionnaire--entering .questionnaire__title {
+    animation-name: mobileQuestionTitleEnter;
+  }
+
+  .section-intro-toast h2 {
+    font-size: 22px;
+  }
+
+  .section-intro-toast > p:not(.section-intro-toast__eyebrow) {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .section-intro-toast button {
+    font-size: 15px;
+  }
+
   .v2-question-panel .results-page-compact .results-header {
     padding-top: 24px;
+  }
+}
+
+@keyframes mobileQuestionTitleEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-34px);
   }
 }
 
