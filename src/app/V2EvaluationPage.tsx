@@ -206,10 +206,31 @@ function VideoRail() {
 }
 
 export default function V2EvaluationPage() {
+  const [activeView, setActiveView] = useState(1);
+
+  useEffect(() => {
+    function updateActiveView(event: Event) {
+      setActiveView(
+        (event as CustomEvent<{ questionId: number }>).detail.questionId,
+      );
+    }
+
+    window.addEventListener("evaluationquestionchange", updateActiveView);
+    window.addEventListener("evaluationresults", updateActiveView);
+    return () => {
+      window.removeEventListener("evaluationquestionchange", updateActiveView);
+      window.removeEventListener("evaluationresults", updateActiveView);
+    };
+  }, []);
+
+  const showVideo = activeView === 1 || activeView === resultsVideoId;
+
   return (
     <>
       <Header />
-      <div className="v2-evaluation-layout">
+      <div
+        className={`v2-evaluation-layout${showVideo ? "" : " v2-evaluation-layout--question-only"}`}
+      >
         <VideoRail />
         <div className="v2-question-panel">
           <Questionnaire

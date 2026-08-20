@@ -55,11 +55,16 @@ export default function QuestionCard({
       aria-labelledby="question-title"
     >
       <p className="questionnaire__meta">
-        {question.id}/{evaluationQuestions.length}
+        {sectionQuestionIndex + 1} / {sectionQuestions.length}
       </p>
       <h1 id="question-title" className="questionnaire__title">
         {question.title}
       </h1>
+      <p className="questionnaire__instruction">
+        {question.kind === "multi-select"
+          ? "Choose all that apply."
+          : "Choose the one that feels most important today."}
+      </p>
 
       {question.kind === "buttons" && (
         <div className="questionnaire__answers" role="radiogroup">

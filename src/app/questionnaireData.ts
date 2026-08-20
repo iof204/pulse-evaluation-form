@@ -38,9 +38,9 @@ export const evaluationQuestions: EvaluationQuestion[] = [
   {
     id: 1,
     sectionId: 1,
-    kind: "select",
+    kind: "multi-select",
     title: "What do you need your marketing to help with most right now?",
-    helper: "Choose the one that feels most important today.",
+    helper: "Choose all that apply.",
     answers: [
       option("awareness", "Building awareness", "Getting more of the right people to discover your business and understand what makes it worth remembering. Prioritizing visibility, recognition, and a clearer presence."),
       option("leads", "Generating leads", "Creating more qualified interest and giving people a clear reason to reach out. Prioritizing attention that turns into real inquiries and opportunities."),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { evaluationQuestions } from "./questionnaireData";
 import {
   perspectiveCopy,
@@ -34,7 +34,7 @@ function evaluateSections(responses: Responses): EvaluatedSection[] {
 }
 
 function shareResults(
-  platform: "facebook" | "x" | "linkedin",
+  platform: "facebook" | "x" | "linkedin" | "email",
   summary: string,
 ) {
   const shareUrl = new URL(window.location.href);
@@ -45,7 +45,13 @@ function shareResults(
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
     x: `https://x.com/intent/post?url=${url}&text=${text}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+    email: `mailto:?subject=${encodeURIComponent("Take the Ecko Marketing Pulse Evaluation")}&body=${text}%0A%0A${url}`,
   };
+
+  if (platform === "email") {
+    window.location.href = destinations.email;
+    return;
+  }
 
   window.open(destinations[platform], "_blank", "noopener,noreferrer,width=720,height=640");
 }
@@ -98,6 +104,29 @@ export default function ResultsPage({
 }) {
   const [submitted, setSubmitted] = useState(false);
   const [openLevel, setOpenLevel] = useState<ResultLevel | null>(null);
+  const [copiedEvaluationLink, setCopiedEvaluationLink] = useState(false);
+  const [showSocialMenu, setShowSocialMenu] = useState(false);
+  const socialMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showSocialMenu) return;
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!socialMenuRef.current?.contains(event.target as Node)) {
+        setShowSocialMenu(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowSocialMenu(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [showSocialMenu]);
   const evaluated = evaluateSections(responses);
   const counts = evaluated.reduce<Record<ResultLevel, number>>(
     (total, section) => ({
@@ -117,13 +146,31 @@ export default function ResultsPage({
     const activeSections = openLevel
       ? evaluated.filter(({ level }) => level === openLevel)
       : [];
-    const shareSummary = `My Ecko Marketing Pulse: ${counts.strong} strong foundation, ${counts.building} building momentum, and ${counts["needs-love"]} needing a little love.`;
+    const visibleSections = activeSections.slice(0, 1);
+    const gatedSections = activeSections.slice(1);
+    const evaluationShareCopy =
+      "Take the Ecko Marketing Pulse Evaluation—a quick check-in to see what's working, what's building momentum, and what could use a little love.";
+    const scrollToFullResults = () => {
+      setOpenLevel(null);
+      window.setTimeout(() => {
+        document
+          .getElementById("compact-full-results")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 320);
+    };
+    const copyEvaluationLink = async () => {
+      const shareUrl = new URL(window.location.href);
+      shareUrl.search = "";
+      await navigator.clipboard.writeText(shareUrl.toString());
+      setCopiedEvaluationLink(true);
+      window.setTimeout(() => setCopiedEvaluationLink(false), 1800);
+    };
 
     return (
       <main className="questionnaire-page results-page-minimal results-page-compact">
         <div className="results-content">
           <header className="results-header">
-            <h1>Good News: Your Marketing Has a Pulse</h1>
+            <h1>Good News: Your Marketing Has a Pulse!</h1>
           </header>
 
           <section className="results-block" aria-label="Marketing results">
@@ -153,14 +200,17 @@ export default function ResultsPage({
                       <h3>{activeCategory?.label}</h3>
                       <p>{activeSections.length} {activeSections.length === 1 ? "area" : "areas"}</p>
                     </div>
-                    <div className="results-share" aria-label="Share your results">
-                      <button type="button" aria-label="Share on Facebook" onClick={() => shareResults("facebook", shareSummary)}><i className="fab fa-facebook-f" aria-hidden="true" /></button>
-                      <button type="button" aria-label="Share on X" onClick={() => shareResults("x", shareSummary)}><i className="fab fa-x-twitter" aria-hidden="true" /></button>
-                      <button type="button" aria-label="Share on LinkedIn" onClick={() => shareResults("linkedin", shareSummary)}><i className="fab fa-linkedin-in" aria-hidden="true" /></button>
-                    </div>
+                    <button
+                      className="results-full-results-cta"
+                      type="button"
+                      onClick={scrollToFullResults}
+                    >
+                      See My Full Evaluation
+                      <i className="fas fa-paper-plane" aria-hidden="true" />
+                    </button>
                   </header>
                   <div className="results-category-details">
-                    {activeSections.length ? activeSections.map((section) => {
+                    {visibleSections.length ? visibleSections.map((section) => {
                       const snapshot = section.snapshots[section.level];
                       return (
                         <article key={section.key}>
@@ -175,6 +225,37 @@ export default function ResultsPage({
                     }) : (
                       <p className="results-category-details__empty">No areas landed here this time.</p>
                     )}
+                    <div className="results-gated-preview">
+                      <div className="results-gated-preview__content" aria-hidden="true">
+                        {gatedSections.length > 0 ? (
+                          gatedSections.slice(0, 2).map((section) => {
+                            const snapshot = section.snapshots[section.level];
+                            return (
+                              <article key={section.key}>
+                                <h4>{section.name}</h4>
+                                <p>{section.reminder}</p>
+                                <strong>What we&apos;re seeing</strong>
+                                <p>{snapshot.seeing}</p>
+                              </article>
+                            );
+                          })
+                        ) : (
+                          <article className="results-gated-preview__placeholder">
+                            <h4>Your Complete Marketing Pulse</h4>
+                            <p>A closer look at every area of your evaluation.</p>
+                            <strong>What we&apos;re seeing</strong>
+                            <p>Your full results include the context, patterns, and next considerations behind your snapshot.</p>
+                          </article>
+                        )}
+                      </div>
+                      <button
+                        className="results-full-results-cta results-gated-preview__cta"
+                        type="button"
+                        onClick={scrollToFullResults}
+                      >
+                        See My Full Evaluation
+                      </button>
+                    </div>
                     <button
                       className="results-category-details__done"
                       type="button"
@@ -188,9 +269,15 @@ export default function ResultsPage({
             </div>
           </section>
 
-          <section className="results-email-minimal" aria-labelledby="compact-email-title">
+          <section id="compact-full-results" className="results-email-minimal" aria-labelledby="compact-email-title">
             <div>
-              <h2 id="compact-email-title">Get the Full Pulse Check</h2>
+              <h2 id="compact-email-title">Want the Full Pulse Check?</h2>
+              <p>
+                Your full Marketing Pulse breakdown goes beyond the snapshot and
+                walks through all seven areas—what your results may be telling
+                you, why they matter, and a few things worth thinking about as
+                you move forward.
+              </p>
             </div>
             {submitted ? (
               <p className="results-email-minimal__success" role="status">
@@ -210,6 +297,52 @@ export default function ResultsPage({
               </form>
             )}
           </section>
+
+          <section className="results-strategy-minimal results-strategy-compact">
+            <h2>Know something needs attention, but not sure what to do next?</h2>
+            <p>
+              Sometimes the hard part isn&apos;t seeing the gap—it&apos;s figuring out
+              where to start, how the pieces should work together, or how to
+              actually get it done while running a business. That&apos;s where Ecko
+              can be your marketing sidekick. Let&apos;s spark some ideas.
+            </p>
+            <a href="tel:+17023774261">Book A Strategy Spark Sesh</a>
+          </section>
+
+          <section className="results-referral-share" aria-labelledby="share-evaluation-title">
+            <h2 id="share-evaluation-title">Pass the Pulse Along</h2>
+            <p>
+              Know someone who could use a clearer read on their marketing?
+              Share the Marketing Pulse Evaluation and help them find their rhythm.
+            </p>
+            <div className="results-share" aria-label="Share the Marketing Pulse Evaluation">
+              <button type="button" aria-label={copiedEvaluationLink ? "Evaluation link copied" : "Copy evaluation link"} onClick={copyEvaluationLink}><i className={`fas ${copiedEvaluationLink ? "fa-check" : "fa-link"}`} aria-hidden="true" /></button>
+              <button type="button" aria-label="Share the evaluation by email" onClick={() => shareResults("email", evaluationShareCopy)}><i className="fas fa-envelope" aria-hidden="true" /></button>
+              <div className="results-social-menu" ref={socialMenuRef}>
+                <button
+                  type="button"
+                  aria-label="Show social sharing options"
+                  aria-expanded={showSocialMenu}
+                  aria-haspopup="menu"
+                  onClick={() => setShowSocialMenu((visible) => !visible)}
+                >
+                  <i className="fas fa-share-nodes" aria-hidden="true" />
+                </button>
+                {showSocialMenu && (
+                  <div className="results-social-menu__popover" role="menu" aria-label="Social networks">
+                    <button type="button" role="menuitem" aria-label="Share the evaluation on Facebook" onClick={() => { shareResults("facebook", evaluationShareCopy); setShowSocialMenu(false); }}><i className="fab fa-facebook-f" aria-hidden="true" /></button>
+                    <button type="button" role="menuitem" aria-label="Share the evaluation on X" onClick={() => { shareResults("x", evaluationShareCopy); setShowSocialMenu(false); }}><i className="fab fa-x-twitter" aria-hidden="true" /></button>
+                    <button type="button" role="menuitem" aria-label="Share the evaluation on LinkedIn" onClick={() => { shareResults("linkedin", evaluationShareCopy); setShowSocialMenu(false); }}><i className="fab fa-linkedin-in" aria-hidden="true" /></button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <footer className="results-signoff-minimal results-signoff-compact">
+            <strong>Your marketing has a pulse. Now let&apos;s help it get stronger.</strong>
+            <p>Evolve. Elevate. Then Echo!</p>
+          </footer>
 
         </div>
       </main>

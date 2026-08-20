@@ -167,7 +167,7 @@ export const resultSections: ResultSectionDefinition[] = [
       "needs-love": {
         label: "Needs a Little Love",
         seeing:
-          "Your visibility may be relying too heavily on urgency—showing up mostly when something needs attention, sales are slower, or there is something specific to push.",
+          "Your visibility may be relying too heavily on urgency; showing up mostly when something needs attention, sales are slower, or there is something specific to push.",
         matters:
           "When marketing becomes mostly reactive, it is harder to build steady awareness and harder to know what is truly working versus what is simply urgent.",
       },
@@ -222,7 +222,7 @@ export const resultSections: ResultSectionDefinition[] = [
         seeing:
           "Your follow-through generally seems to work, but some parts of the experience may depend on timing, manual effort, or who is handling the interaction. Staying connected after someone becomes a customer may also happen less consistently.",
         matters:
-          "When follow-through is inconsistent, interested customers can lose momentum, and existing customer relationships may become quieter than intended after the initial transaction.",
+          "When follow-through is inconsistent, interested customers can lose momentum before taking the next step, and existing customer relationships may become quieter than intended after the initial transaction.",
       },
       "needs-love": {
         label: "Needs a Little Love",

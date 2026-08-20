@@ -106,26 +106,22 @@ export default function Header() {
 
           <div className="headings">
             <h2>
-              <span>Bold Ideas. Seamless Execution. </span>
+              <span>Evolve. Elevate. Then Echo!</span>
             </h2>
           </div>
         </div>
 
-        <div className="buttons">
-          <a
-            className="site-button site-button--pulse"
-            style={
-              {
-                "--ss-site-button-background-color": "#7C4D9E",
-                "--ss-site-button-background-color-dark": "#633485",
-                "--ss-site-button-text-color": "#FAFAFA",
-              } as React.CSSProperties
-            }
-            href="tel:+17023774261"
-          >
-            Book Your Strategy Spark Sesh
-          </a>
+        <div className="buttons evaluation-badge" aria-label="Marketing Pulse Evaluation, approximately 5 minutes">
+          <span className="evaluation-badge__copy">
+            <strong>Marketing Pulse Evaluation</strong>
+            <small>Discover your marketing rhythm</small>
+          </span>
+          <span className="evaluation-badge__time">
+            <strong>≈ 5</strong>
+            <small>min</small>
+          </span>
         </div>
+
       </div>
 
       <nav
