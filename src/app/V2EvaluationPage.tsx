@@ -25,8 +25,17 @@ function QuestionVideo({
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    if (active) return;
-    videoRef.current?.pause();
+    const video = videoRef.current;
+    if (!video) return;
+    if (!active) {
+      video.pause();
+      return;
+    }
+    if (!window.matchMedia("(max-width: 967px)").matches) return;
+    video.muted = true;
+    void video.play().catch(() => {
+      // Mobile browsers may still defer playback when battery/data saving is active.
+    });
   }, [active]);
 
   async function togglePlayback() {
@@ -53,7 +62,7 @@ function QuestionVideo({
         className="v2-video-card__video"
         src={src}
         playsInline
-        preload={active ? "metadata" : "none"}
+        preload={active ? "auto" : "none"}
         aria-label={`Video for question ${questionId}`}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}

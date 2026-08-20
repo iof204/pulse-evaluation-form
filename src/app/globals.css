@@ -2057,11 +2057,29 @@ body {
   .v2-question-panel .questionnaire__title {
     width: 86%;
     margin-bottom: 20px;
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .v2-question-panel .questionnaire__title--long {
-    font-size: 19px;
+    font-size: 22px;
+  }
+
+  .v2-question-panel .questionnaire > .questionnaire__meta {
+    font-size: 13px;
+  }
+
+  .v2-question-panel .questionnaire__instruction {
+    font-size: 14px;
+  }
+
+  .v2-question-panel .questionnaire__choice-list label {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .v2-question-panel .questionnaire__back,
+  .v2-question-panel .questionnaire__continue {
+    font-size: 14px;
   }
 
   .v2-question-panel .results-page-compact .results-header {

@@ -224,12 +224,15 @@ export default function Questionnaire({
       }),
     );
     setPhase("exiting");
+    const transitionDelay = window.matchMedia("(max-width: 967px)").matches
+      ? Math.min(exitDuration, 260)
+      : exitDuration;
     transitionTimer.current = setTimeout(() => {
       updateUrl(nextIndex);
       setQuestionIndex(nextIndex);
       setPhase("entering");
       transitionTimer.current = setTimeout(() => setPhase("idle"), 500);
-    }, exitDuration);
+    }, transitionDelay);
   }
 
   function chooseButtonAnswer(answer: AnswerOption) {
@@ -282,6 +285,9 @@ export default function Questionnaire({
       announceResults();
     };
 
+    const transitionDelay = window.matchMedia("(max-width: 967px)").matches
+      ? Math.min(exitDuration, 260)
+      : exitDuration;
     transitionTimer.current = setTimeout(() => {
       if (!compactResults) {
         revealResults();
@@ -291,7 +297,7 @@ export default function Questionnaire({
       setShowResultsLoading(true);
       setPhase("idle");
       transitionTimer.current = setTimeout(revealResults, 1500);
-    }, exitDuration);
+    }, transitionDelay);
   }
 
   function restartEvaluation() {
