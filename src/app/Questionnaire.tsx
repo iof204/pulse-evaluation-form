@@ -133,12 +133,10 @@ export default function Questionnaire({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const sectionIntroButtonRef = useRef<HTMLButtonElement | null>(null);
   const question = evaluationQuestions[questionIndex];
-  const previousSectionId = useRef(question.sectionId);
-  const sectionPulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousSectionId = useRef<number | null>(null);
+  const sectionBadgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isSectionLauncherPulsing, setIsSectionLauncherPulsing] = useState(false);
-  const [badgeReadySection, setBadgeReadySection] = useState<number | null>(
-    question.sectionId,
-  );
+  const [badgeReadySection, setBadgeReadySection] = useState<number | null>(null);
   const sectionIntro = sectionIntros[question.sectionId];
   const hasSectionNotification =
     badgeReadySection === question.sectionId &&
@@ -162,27 +160,22 @@ export default function Questionnaire({
   }, [compactResults]);
 
   useEffect(() => {
+    if (showIntroLoading) return;
     if (previousSectionId.current === question.sectionId) return;
     previousSectionId.current = question.sectionId;
 
-    if (sectionPulseTimer.current) clearTimeout(sectionPulseTimer.current);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setIsSectionLauncherPulsing(false);
-      setBadgeReadySection(question.sectionId);
-      return;
-    }
-
+    if (sectionBadgeTimer.current) clearTimeout(sectionBadgeTimer.current);
     setBadgeReadySection(null);
     setIsSectionLauncherPulsing(true);
-    sectionPulseTimer.current = setTimeout(() => {
+    sectionBadgeTimer.current = setTimeout(() => {
       setIsSectionLauncherPulsing(false);
       setBadgeReadySection(question.sectionId);
     }, 720);
 
     return () => {
-      if (sectionPulseTimer.current) clearTimeout(sectionPulseTimer.current);
+      if (sectionBadgeTimer.current) clearTimeout(sectionBadgeTimer.current);
     };
-  }, [question.sectionId]);
+  }, [question.sectionId, showIntroLoading]);
 
   useEffect(() => {
     function showQuestionFromUrl() {
