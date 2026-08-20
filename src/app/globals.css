@@ -4769,63 +4769,64 @@ body {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: #f7f4f9;
+  background: #f6f4f7;
   font-family: var(--font-poppins), sans-serif;
 }
 
 .site-access__card {
-  width: min(100%, 460px);
-  padding: 42px 38px 34px;
-  border-radius: 18px;
-  background: #321c58;
-  box-shadow: 0 24px 60px rgb(50 28 88 / 24%);
-  color: #fff;
-}
-
-.site-access__eyebrow {
-  margin: 0;
-  color: #cbb8da;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  box-sizing: border-box;
+  width: min(100%, 380px);
+  padding: 34px;
+  border: 1px solid #ebe7ee;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgb(50 28 88 / 10%);
+  color: #321c58;
 }
 
 .site-access h1 {
-  margin: 10px 0 0;
-  font-size: clamp(28px, 7vw, 38px);
-  line-height: 1.15;
+  margin: 18px 0 24px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
 }
 
-.site-access__copy {
-  margin: 12px 0 26px;
-  color: rgb(255 255 255 / 76%);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.site-access label {
+.site-access__logo {
   display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 500;
+  width: min(170px, 58%);
+  height: auto;
+  margin: 0 auto;
+}
+
+.site-access__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .site-access input {
   width: 100%;
   min-height: 50px;
   padding: 0 15px;
-  border: 1px solid rgb(255 255 255 / 24%);
-  border-radius: 12px;
+  box-sizing: border-box;
+  border: 1px solid #dcd6e1;
+  border-radius: 10px;
   outline: none;
-  background: rgb(255 255 255 / 10%);
-  color: #fff;
+  background: #fff;
+  color: #321c58;
   font: inherit;
 }
 
 .site-access input:focus {
-  border-color: #c4a7d7;
-  box-shadow: 0 0 0 3px rgb(196 167 215 / 18%);
+  border-color: #7c4d9e;
+  box-shadow: 0 0 0 3px rgb(124 77 158 / 12%);
 }
 
 .site-access button {
@@ -4833,7 +4834,7 @@ body {
   min-height: 50px;
   margin-top: 16px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 10px;
   background: #7c4d9e;
   color: #fff;
   cursor: pointer;
@@ -4841,9 +4842,15 @@ body {
 }
 
 .site-access button:disabled { opacity: .65; }
-.site-access__error { margin: 10px 0 0; color: #f4cddd; font-size: 13px; }
-.site-access footer { margin-top: 28px; color: #cbb8da; font-size: 12px; text-align: center; }
+.site-access__error { margin: 10px 0 0; color: #a63a62; font-size: 13px; }
+.site-access__signoff {
+  margin: 24px 0 0;
+  color: #765f87;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
 
 @media (max-width: 599px) {
-  .site-access__card { padding: 34px 24px 28px; }
+  .site-access__card { padding: 30px 24px; }
 }

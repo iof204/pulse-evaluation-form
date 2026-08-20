@@ -29,16 +29,20 @@ export default function AccessPage() {
   return (
     <main className="site-access">
       <section className="site-access__card">
-        <p className="site-access__eyebrow">Marketing Pulse Evaluation</p>
-        <h1>Let’s check your pulse.</h1>
-        <p className="site-access__copy">Enter the password to view the evaluation.</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="site-access__logo"
+          src="https://d14tal8bchn59o.cloudfront.net/tT8kTKStgAOAqD3CF-vqwSdDxRBYUlCtZatT91hBmrM/w:1920/plain/https%3A%2F%2F02f0a56ef46d93f03c90-22ac5f107621879d5667e0d7ed595bdb.ssl.cf2.rackcdn.com%2Fsites%2F127849%2Fphotos%2F24248554%2FEK_Ecko_Logo_%2528Page_1%2529_original.png"
+          alt="Ecko Marketing"
+        />
+        <h1>Marketing Pulse Evaluation</h1>
         <form onSubmit={submit}>
-          <label htmlFor="site-password">Password</label>
-          <input id="site-password" name="password" type="password" autoComplete="current-password" autoFocus required />
+          <label className="site-access__sr-only" htmlFor="site-password">Password</label>
+          <input id="site-password" name="password" type="password" placeholder="Password" autoComplete="current-password" autoFocus required />
           {error && <p className="site-access__error" role="alert">{error}</p>}
-          <button type="submit" disabled={submitting}>{submitting ? "Opening…" : "Enter Evaluation"}</button>
+          <button type="submit" disabled={submitting}>{submitting ? "Opening…" : "Enter Password"}</button>
         </form>
-        <footer><strong>Evolve. Elevate. Then Echo!</strong></footer>
+        <p className="site-access__signoff">Evolve. Elevate. Then Echo!</p>
       </section>
     </main>
   );
