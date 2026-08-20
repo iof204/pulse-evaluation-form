@@ -253,6 +253,7 @@ export default function V2EvaluationPage() {
             compactResults
             exitDuration={720}
             inlineAnswerDetails
+            scrollToTopOnQuestionChange
           />
         </div>
       </div>

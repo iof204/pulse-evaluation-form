@@ -108,12 +108,14 @@ export default function Questionnaire({
   exitDuration = 1420,
   inlineAnswerDetails = false,
   compactResults = false,
+  scrollToTopOnQuestionChange = false,
 }: {
   autoAdvanceOnSelect?: boolean;
   showSectionProgress?: boolean;
   exitDuration?: number;
   inlineAnswerDetails?: boolean;
   compactResults?: boolean;
+  scrollToTopOnQuestionChange?: boolean;
 } = {}) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Responses>({});
@@ -231,6 +233,14 @@ export default function Questionnaire({
       updateUrl(nextIndex);
       setQuestionIndex(nextIndex);
       setPhase("entering");
+      if (
+        scrollToTopOnQuestionChange &&
+        window.matchMedia("(max-width: 599px)").matches
+      ) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
       transitionTimer.current = setTimeout(() => setPhase("idle"), 500);
     }, transitionDelay);
   }
