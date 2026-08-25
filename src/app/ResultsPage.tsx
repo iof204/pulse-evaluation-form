@@ -8,7 +8,18 @@ import {
   resultSections,
   type ResultLevel,
   type ResultSectionDefinition,
+  type ResultSectionKey,
 } from "./resultsData";
+
+const sectionIcons: Record<ResultSectionKey, string> = {
+  brand: "fa-bullhorn",
+  audience: "fa-users",
+  goals: "fa-bullseye",
+  journey: "fa-location-dot",
+  campaign: "fa-megaphone",
+  mix: "fa-chart-pie",
+  retention: "fa-arrows-rotate",
+};
 
 type Responses = Record<number, string[]>;
 type EvaluatedSection = ResultSectionDefinition & {
@@ -68,6 +79,50 @@ function getPerspective(counts: Record<ResultLevel, number>) {
   if (counts["needs-love"] >= 4)
     return perspectiveCopy["several-needs-love"];
   return perspectiveCopy.mixed;
+}
+
+function TargetDartIcon() {
+  return (
+    <svg
+      className="results-target-dart-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="7.5" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+      <path
+        d="M17.4 6.6L12.3 11.1"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path d="M12.3 11.1L10.8 12.6L12.3 11.1L13.4 10.2Z" fill="currentColor" />
+      <path d="M17.4 6.6L18.6 5.2L16.9 5.9Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CompactResultSection({ section }: { section: EvaluatedSection }) {
+  const snapshot = section.snapshots[section.level];
+
+  return (
+    <article className="results-section results-section--with-icon">
+      <span className="results-section-title__icon" aria-hidden="true">
+        <i className={`fas ${sectionIcons[section.key]}`} />
+      </span>
+      <div className="results-section__body">
+        <h4>{section.name}</h4>
+        <p>{section.reminder}</p>
+        <strong>What we&apos;re seeing</strong>
+        <p>{snapshot.seeing}</p>
+        <strong>Why it matters</strong>
+        <p>{snapshot.matters}</p>
+      </div>
+    </article>
+  );
 }
 
 function Insight({ section }: { section: EvaluatedSection }) {
@@ -195,10 +250,43 @@ export default function ResultsPage({
   );
 
   if (compact) {
-    const categories: Array<{ level: ResultLevel; label: string }> = [
-      { level: "strong", label: "Strong Foundation" },
-      { level: "building", label: "Building Momentum" },
-      { level: "needs-love", label: "Needs a Little Love" },
+    const categories: Array<{
+      level: ResultLevel;
+      cardClass: string;
+      label: string;
+      summary: string;
+      badge: string;
+      headerIcon: string;
+      gatedClass: string;
+      ctaClass: string;
+      badgeClass: string;
+      emptyMessage: string;
+    }> = [
+      {
+        level: "strong",
+        cardClass: "results-expanded-card--clicking",
+        label: "What's Clicking",
+        summary: "Top strengths you're doing well",
+        badge: "Strong Foundation",
+        headerIcon: "fa-thumbs-up",
+        gatedClass: "results-gated-preview--clicking",
+        ctaClass: "results-gated-preview__cta--clicking",
+        badgeClass: "results-full-results-cta--clicking",
+        emptyMessage: "No areas landed here this time.",
+      },
+      {
+        level: "needs-love",
+        cardClass: "results-expanded-card--focus",
+        label: "Where to Focus Next",
+        summary: "Top areas for improvement",
+        badge: "Needs a Little Love",
+        headerIcon: "target-dart",
+        gatedClass: "results-gated-preview--focus",
+        ctaClass: "results-gated-preview__cta--focus",
+        badgeClass: "results-full-results-cta--focus",
+        emptyMessage:
+          "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage.",
+      },
     ];
     const evaluationShareCopy =
       "Take the Ecko Marketing Pulse Evaluation—a quick check-in to see what's working, what's building momentum, and what could use a little love.";
@@ -220,53 +308,53 @@ export default function ResultsPage({
 
           <section className="results-block" aria-label="Marketing results">
             <div className="results-expanded-cards">
-              {categories.map(({ level, label }) => {
+              {categories.map(
+                ({
+                  level,
+                  cardClass,
+                  label,
+                  summary,
+                  badge,
+                  headerIcon,
+                  gatedClass,
+                  ctaClass,
+                  badgeClass,
+                  emptyMessage,
+                }) => {
                 const sections = evaluated.filter((section) => section.level === level);
-                const visibleSection = sections[0];
-                const gatedSections = sections.slice(1);
 
                 return (
-                  <section className="results-expanded-card" key={level}>
+                  <section className={`results-expanded-card ${cardClass}`} key={level}>
                     <header>
-                      <div>
-                        <h3>{label}</h3>
-                        <p>{counts[level]} {counts[level] === 1 ? "area" : "areas"}</p>
+                      <div className="results-expanded-card__heading">
+                        <span className="results-expanded-card__icon" aria-hidden="true">
+                          {headerIcon === "target-dart" ? (
+                            <TargetDartIcon />
+                          ) : (
+                            <i className={`fas ${headerIcon}`} />
+                          )}
+                        </span>
+                        <div>
+                          <h3>{label}</h3>
+                          <p>{summary}</p>
+                        </div>
                       </div>
-                      <button
-                        className="results-full-results-cta"
-                        type="button"
-                        onClick={openFullResultsModal}
-                      >
-                        See My Full Evaluation
-                        <i className="fas fa-paper-plane" aria-hidden="true" />
-                      </button>
+                      <span className={`results-full-results-cta ${badgeClass}`}>
+                        {badge}
+                      </span>
                     </header>
 
                     <div className="results-category-details results-expanded-card__details">
-                      {visibleSection ? (() => {
-                        const snapshot = visibleSection.snapshots[visibleSection.level];
-                        return (
-                          <article>
-                            <h4>{visibleSection.name}</h4>
-                            <p>{visibleSection.reminder}</p>
-                            <strong>What we&apos;re seeing</strong>
-                            <p>{snapshot.seeing}</p>
-                            <strong>Why it matters</strong>
-                            <p>{snapshot.matters}</p>
-                          </article>
-                        );
-                      })() : (
-                        <p className="results-category-details__empty">
-                          {level === "needs-love"
-                            ? "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage."
-                            : "No areas landed here this time."}
-                        </p>
+                      {sections[0] ? (
+                        <CompactResultSection section={sections[0]} />
+                      ) : (
+                        <p className="results-category-details__empty">{emptyMessage}</p>
                       )}
-
-                      <div className="results-gated-preview">
+                      {sections[1] && <CompactResultSection section={sections[1]} />}
+                      <div className={`results-gated-preview ${gatedClass}`}>
                         <div className="results-gated-preview__content" aria-hidden="true">
-                          {gatedSections.length > 0 ? (
-                            gatedSections.slice(0, 2).map((section) => {
+                          {sections.length > 2 ? (
+                            sections.slice(2).map((section) => {
                               const snapshot = section.snapshots[section.level];
                               return (
                                 <article key={section.key}>
@@ -282,34 +370,95 @@ export default function ResultsPage({
                               <h4>Your Complete Marketing Pulse</h4>
                               <p>A closer look at every area of your evaluation.</p>
                               <strong>What we&apos;re seeing</strong>
-                              <p>Your full results include the context, patterns, and next considerations behind your snapshot.</p>
+                              <p>
+                                Your full results include the context, patterns, and next
+                                considerations behind your snapshot.
+                              </p>
                             </article>
                           )}
                         </div>
                         <button
-                          className="results-full-results-cta results-gated-preview__cta"
+                          className={`results-full-results-cta results-gated-preview__cta ${ctaClass}`}
                           type="button"
                           onClick={openFullResultsModal}
                         >
-                          See My Full Evaluation
+                          View Detailed Results
                         </button>
                       </div>
                     </div>
                   </section>
                 );
               })}
+              <section
+                className="results-expanded-card results-expanded-card--perspective"
+                aria-labelledby="ecko-perspective-title"
+              >
+                <div className="results-category-details results-expanded-card__details">
+                  <article className="results-section results-section--with-icon">
+                    <span className="results-section-title__icon" aria-hidden="true">
+                      <i className="fas fa-eye" />
+                    </span>
+                    <div className="results-section__body">
+                      <h4 id="ecko-perspective-title">A Little Ecko Perspective</h4>
+                      <p>
+                        You have a solid foundation in several important areas, but there are a few
+                        places where more clarity and consistency could make your marketing{" "}
+                        <strong>work harder for the business.</strong>
+                      </p>
+                      <p>
+                        The biggest opportunity right now is not necessarily doing more marketing —
+                        it&apos;s making sure the pieces you already have are working together with
+                        more intention.
+                      </p>
+                    </div>
+                  </article>
+                </div>
+              </section>
+              <section
+                className="results-expanded-card results-expanded-card--reminder"
+                aria-labelledby="ecko-reminder-title"
+              >
+                <div className="results-category-details results-expanded-card__details">
+                  <article className="results-section results-section--with-icon">
+                    <span className="results-section-title__icon" aria-hidden="true">
+                      <i className="fas fa-star" />
+                    </span>
+                    <div className="results-section__body">
+                      <h4 id="ecko-reminder-title">A Little Ecko Reminder</h4>
+                      <div className="results-reminder-card__quote">
+                        <span className="results-reminder-card__quote-mark" aria-hidden="true">
+                          &ldquo;
+                        </span>
+                        <p>
+                          Remember, marketing is not set it and forget it. It&apos;s always evolving.
+                          Elevate what&apos;s working, adjust what isn&apos;t, and let the strongest
+                          parts echo.
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                  <p className="results-reminder-card__signoff">
+                    <span>Evolve. Elevate. Then Echo.</span>
+                  </p>
+                </div>
+              </section>
             </div>
           </section>
 
           <section id="compact-full-results" className="results-email-minimal" aria-labelledby="compact-email-title">
-            <div>
-              <h2 id="compact-email-title">Want the Full Pulse Check?</h2>
-              <p>
-                Your full Marketing Pulse breakdown goes beyond the snapshot and
-                walks through all seven areas—what your results may be telling
-                you, why they matter, and a few things worth thinking about as
-                you move forward.
-              </p>
+            <div className="results-email-minimal__intro">
+              <span className="results-email-minimal__icon" aria-hidden="true">
+                <i className="fas fa-envelope" />
+              </span>
+              <div>
+                <h2 id="compact-email-title">Want the Full Pulse Check?</h2>
+                <p>
+                  Your full Marketing Pulse breakdown goes beyond the snapshot and
+                  walks through all seven areas—what your results may be telling
+                  you, why they matter, and a few things worth thinking about as
+                  you move forward.
+                </p>
+              </div>
             </div>
             {submitted ? (
               <p className="results-email-minimal__success" role="status">
@@ -332,13 +481,20 @@ export default function ResultsPage({
           </section>
 
           <section className="results-strategy-minimal results-strategy-compact">
-            <h2>Know something needs attention, but not sure what to do next?</h2>
-            <p>
-              Sometimes the hard part isn&apos;t seeing the gap—it&apos;s figuring out
-              where to start, how the pieces should work together, or how to
-              actually get it done while running a business. That&apos;s where Ecko
-              can be your marketing sidekick. Let&apos;s spark some ideas.
-            </p>
+            <div className="results-strategy-compact__intro">
+              <span className="results-strategy-compact__icon" aria-hidden="true">
+                <i className="fas fa-calendar-days" />
+              </span>
+              <div>
+                <h2>Want to Talk It Through Instead?</h2>
+                <p>
+                  Sometimes the hard part isn&apos;t seeing the gap—it&apos;s figuring out
+                  where to start, how the pieces should work together, or how to
+                  actually get it done while running a business. That&apos;s where Ecko
+                  can be your marketing sidekick. Let&apos;s spark some ideas.
+                </p>
+              </div>
+            </div>
             <a href="tel:+17023774261">Book A Strategy Spark Sesh</a>
           </section>
 
