@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "hubspot:setup": "node scripts/setup-hubspot-marketing-pulse.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",

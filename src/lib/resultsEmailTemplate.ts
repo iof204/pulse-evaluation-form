@@ -30,6 +30,8 @@ export type ResultsEmailInput = {
   evaluated: EvaluatedSection[];
   evaluationUrl?: string;
   strategyUrl?: string;
+  marketingConsent?: boolean;
+  tapInUrl?: string;
 };
 
 export const DEFAULT_EVALUATION_URL = "https://post-evaluation-form-v2.vercel.app/v2";
@@ -227,6 +229,20 @@ function reminderCardHtml() {
   </table>`;
 }
 
+function tapInBlockHtml(tapInUrl: string) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border:1px solid #e3e0e5;border-radius:12px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.12)">
+    <tr>
+      <td style="padding:24px 24px 20px">
+        <h2 style="margin:0;color:#33185c;font-size:20px;font-weight:600;line-height:1.3">Want to stay tapped in?</h2>
+        <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Tap in to what&rsquo;s moving in marketing &mdash; from practical ideas and trends we&rsquo;re watching to takeaways from Marketing Real Talk by Ecko, Ecko updates, things worth questioning, and the occasional thing we think deserves a spot on your radar.</p>
+        <div style="margin-top:20px;text-align:center">
+          <a href="${tapInUrl}" style="display:inline-block;padding:12px 24px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.18);color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;letter-spacing:.04em">TAP IN</a>
+        </div>
+      </td>
+    </tr>
+  </table>`;
+}
+
 function strategyBlockHtml(strategyUrl: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:42px;background:#321c58">
     <tr>
@@ -287,11 +303,14 @@ export function buildResultsEmailHtml({
   evaluated,
   evaluationUrl = DEFAULT_EVALUATION_URL,
   strategyUrl = DEFAULT_STRATEGY_URL,
+  marketingConsent = false,
+  tapInUrl,
 }: ResultsEmailInput) {
   const strongSections = evaluated.filter((section) => section.level === "strong");
   const focusSections = evaluated.filter((section) => section.level === "needs-love");
   const buildingSections = evaluated.filter((section) => section.level === "building");
   const perspective = getPerspective(countLevels(evaluated));
+  const tapInHtml = !marketingConsent && tapInUrl ? tapInBlockHtml(tapInUrl) : "";
 
   const cards = [
     categoryCardHtml({
@@ -372,7 +391,7 @@ export function buildResultsEmailHtml({
               </td>
             </tr>
             <tr>
-              <td style="padding:8px 24px 40px">${cards.join("")}${perspectiveCardHtml()}${reminderCardHtml()}${strategyBlockHtml(strategyUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
+              <td style="padding:8px 24px 40px">${cards.join("")}${perspectiveCardHtml()}${reminderCardHtml()}${tapInHtml}${strategyBlockHtml(strategyUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
             </tr>
           </table>
         </td>

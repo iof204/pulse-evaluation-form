@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { buildTapInUrl } from "../../../lib/appUrl";
 import { evaluateSections } from "../../../lib/evaluateResults";
+import { syncMarketingPulseContactToHubSpot } from "../../../lib/hubspotSync";
 import { buildResultsEmailHtml, buildResultsEmailText } from "../../../lib/resultsEmailTemplate";
 
 type Responses = Record<number, string[]>;
@@ -19,6 +21,8 @@ export async function POST(request: Request) {
     const email = body.email?.trim().toLowerCase() ?? "";
     const businessName = body.businessName?.trim() ?? "";
     const industry = body.industry?.trim() ?? "";
+    const marketingConsent = Boolean(body.marketingConsent);
+    const responses = body.responses ?? {};
     if (!firstName || !industry || !/^\S+@\S+\.\S+$/.test(email)) {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
     }
@@ -29,12 +33,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email delivery is not configured." }, { status: 500 });
     }
 
-    const evaluated = evaluateSections(body.responses ?? {});
+    const evaluated = evaluateSections(responses);
     const emailContent = {
       firstName,
       businessName,
       industry,
       evaluated,
+      marketingConsent,
+      tapInUrl: buildTapInUrl(email),
     };
 
     const transporter = nodemailer.createTransport({
@@ -50,8 +56,23 @@ export async function POST(request: Request) {
       subject: "Your Full Marketing Pulse Evaluation",
       text: buildResultsEmailText(emailContent),
       html: buildResultsEmailHtml(emailContent),
-      headers: { "X-Ecko-Marketing-Consent": body.marketingConsent ? "yes" : "no" },
+      headers: { "X-Ecko-Marketing-Consent": marketingConsent ? "yes" : "no" },
     });
+
+    try {
+      await syncMarketingPulseContactToHubSpot({
+        firstName,
+        email,
+        businessName,
+        industry,
+        marketingConsent,
+        responses,
+        evaluated,
+      });
+    } catch (error) {
+      console.error("HubSpot Marketing Pulse sync failed", error);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Unable to send Marketing Pulse results", error);

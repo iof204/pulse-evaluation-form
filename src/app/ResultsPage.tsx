@@ -464,8 +464,9 @@ export default function ResultsPage({
                   <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                   <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
                 </div>
-                <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
-                <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Send me occasional Ecko updates.</span></label>
+                <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+                <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
+                <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
                 <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
                 {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
               </form>
@@ -564,8 +565,9 @@ export default function ResultsPage({
                     <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
                     <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
                   </div>
-                  <label className="results-check"><input type="checkbox" required /><span>I agree to receive my results and acknowledge the <a href="/privacy-policy">Privacy Policy</a>.</span></label>
-                  <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Send me occasional Ecko updates.</span></label>
+                  <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+                  <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
+                  <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
                   <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
                   {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
                 </form>
@@ -665,9 +667,9 @@ export default function ResultsPage({
                 <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                 <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
               </div>
-              <label className="results-check"><input type="checkbox" required /><span>By submitting, you agree to receive your requested results and acknowledge our <a href="/privacy-policy">Privacy Policy</a>.</span></label>
-              <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d also like occasional practical marketing tips, resources, and Ecko updates.</span></label>
-              <p className="results-email-minimal__note">We&apos;ll use your email to send the results you requested. No surprise newsletter signup.</p>
+              <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+              <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
+              <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
               <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Send Me My Detailed Results"}</button>
               {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
             </form>
