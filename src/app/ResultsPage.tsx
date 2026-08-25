@@ -8,18 +8,10 @@ import {
   resultSections,
   type ResultLevel,
   type ResultSectionDefinition,
-  type ResultSectionKey,
 } from "./resultsData";
+import { sectionIconClasses } from "../lib/sectionIcons";
 
-const sectionIcons: Record<ResultSectionKey, string> = {
-  brand: "fa-bullhorn",
-  audience: "fa-users",
-  goals: "fa-bullseye",
-  journey: "fa-location-dot",
-  campaign: "fa-megaphone",
-  mix: "fa-chart-pie",
-  retention: "fa-arrows-rotate",
-};
+const sectionIcons = sectionIconClasses;
 
 type Responses = Record<number, string[]>;
 type EvaluatedSection = ResultSectionDefinition & {
