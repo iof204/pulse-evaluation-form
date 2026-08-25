@@ -9,7 +9,8 @@
     "lint": "eslint",
     "hubspot:setup": "node scripts/setup-hubspot-marketing-pulse.mjs",
     "hubspot:visibility": "node scripts/setup-hubspot-crm-visibility.mjs",
-    "hubspot:ui": "node scripts/configure-hubspot-ui.mjs"
+    "hubspot:ui": "node scripts/configure-hubspot-ui.mjs",
+    "vercel:production": "node scripts/setup-vercel-production.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",

@@ -111,7 +111,7 @@ Marketing Pulse lists folder:
   https://app.hubspot.com/contacts/${PORTAL_ID}/lists
 
 Pulse CRM dashboard (in-app table):
-  https://post-evaluation-form-v2-pi.vercel.app/pulse-crm
+  https://post-evaluation-form-v2.vercel.app/pulse-crm
 
 Record customization (pin Marketing Pulse card on contact records):
   https://app.hubspot.com/settings/${PORTAL_ID}/objects/0-1/record-customization

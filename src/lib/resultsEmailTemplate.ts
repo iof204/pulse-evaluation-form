@@ -34,8 +34,8 @@ export type ResultsEmailInput = {
   tapInUrl?: string;
 };
 
-export const DEFAULT_EVALUATION_URL = "https://post-evaluation-form-v2-pi.vercel.app/v2";
-export const DEFAULT_STRATEGY_URL = "https://post-evaluation-form-v2-pi.vercel.app/api/strategy-click";
+export const DEFAULT_EVALUATION_URL = "https://post-evaluation-form-v2.vercel.app/v2";
+export const DEFAULT_STRATEGY_URL = "https://post-evaluation-form-v2.vercel.app/api/strategy-click";
 export const SHARE_COPY =
   "Take the Ecko Marketing Pulse Evaluation—a quick check-in to see what's working, what's building momentum, and what could use a little love.";
 
