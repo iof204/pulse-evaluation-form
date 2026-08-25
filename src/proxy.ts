@@ -23,6 +23,8 @@ export async function proxy(request: NextRequest) {
     pathname === "/access" ||
     pathname === "/api/site-access" ||
     pathname.startsWith("/_next/") ||
+    pathname.startsWith("/videos/") ||
+    pathname.startsWith("/images/") ||
     pathname === "/favicon.ico"
   ) {
     const response = NextResponse.next();
