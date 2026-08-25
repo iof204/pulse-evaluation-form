@@ -59,6 +59,7 @@ export type HubSpotPulseSyncInput = {
   businessName?: string;
   industry: string;
   marketingConsent: boolean;
+  hardestChallenge?: string;
   responses: Responses;
   evaluated?: EvaluatedSection[];
   consentSource?: MarketingConsentSource;
@@ -66,7 +67,10 @@ export type HubSpotPulseSyncInput = {
 
 export function buildMarketingPulseContactProperties(
   input: HubSpotPulseSyncInput,
-  options?: { consentSource?: MarketingConsentSource },
+  options?: {
+    consentSource?: MarketingConsentSource;
+    includeConsentFields?: boolean;
+  },
 ) {
   const evaluated = input.evaluated ?? evaluateSections(input.responses);
   const counts = countLevels(evaluated);
@@ -74,6 +78,7 @@ export function buildMarketingPulseContactProperties(
   const { priority1, priority2 } = priorityAreas(evaluated);
   const now = toHubSpotDatetime();
   const consentSource = options?.consentSource ?? input.consentSource;
+  const includeConsentFields = options?.includeConsentFields ?? input.marketingConsent;
 
   const properties: Record<string, string> = {
     firstname: input.firstName,
@@ -83,14 +88,20 @@ export function buildMarketingPulseContactProperties(
     mp_detailed_results_requested: "true",
     mp_evaluation_completed_date: now,
     mp_detailed_results_sent_date: now,
-    mp_marketing_consent: input.marketingConsent ? "true" : "false",
     mp_ecko_perspective: perspectiveKey,
     hs_marketable_status: input.marketingConsent
       ? "MARKETING_CONTACT"
       : "NON_MARKETING_CONTACT",
   };
 
+  if (includeConsentFields) {
+    properties.mp_marketing_consent = input.marketingConsent ? "true" : "false";
+  }
+
   if (input.businessName) properties.company = input.businessName;
+
+  const hardestChallenge = input.hardestChallenge?.trim();
+  if (hardestChallenge) properties.mp_hardest_challenge = hardestChallenge;
 
   const primaryGoal = checkboxValue(input.responses[1]);
   if (primaryGoal) properties.mp_primary_goal = primaryGoal;
@@ -150,7 +161,7 @@ async function hubspotFetch(path: string, init?: RequestInit) {
   return data as Record<string, unknown>;
 }
 
-async function findContactIdByEmail(email: string) {
+async function findContactByEmail(email: string) {
   const search = await hubspotFetch("/crm/v3/objects/contacts/search", {
     method: "POST",
     body: JSON.stringify({
@@ -165,26 +176,29 @@ async function findContactIdByEmail(email: string) {
           ],
         },
       ],
-      properties: ["email"],
+      properties: ["email", "mp_marketing_consent"],
       limit: 1,
     }),
   });
 
-  return (search?.results as Array<{ id?: string }> | undefined)?.[0]?.id;
+  const result = (search?.results as Array<{ id?: string; properties?: Record<string, string> }> | undefined)?.[0];
+  return result?.id
+    ? { id: result.id, properties: result.properties ?? {} }
+    : null;
 }
 
 async function upsertContactProperties(
   email: string,
   properties: Record<string, string>,
 ) {
-  const existingId = await findContactIdByEmail(email);
+  const existing = await findContactByEmail(email);
 
-  if (existingId) {
-    await hubspotFetch(`/crm/v3/objects/contacts/${existingId}`, {
+  if (existing?.id) {
+    await hubspotFetch(`/crm/v3/objects/contacts/${existing.id}`, {
       method: "PATCH",
       body: JSON.stringify({ properties }),
     });
-    return { id: existingId, action: "updated" as const };
+    return { id: existing.id, action: "updated" as const, existing };
   }
 
   const created = await hubspotFetch("/crm/v3/objects/contacts", {
@@ -194,7 +208,25 @@ async function upsertContactProperties(
   return {
     id: String(created?.id ?? ""),
     action: "created" as const,
+    existing: null,
   };
+}
+
+async function getLensSubscriptionStatus(email: string) {
+  const subscriptionId = process.env.HUBSPOT_MARKETING_LENS_SUBSCRIPTION_ID;
+  if (!subscriptionId) return null;
+
+  const data = await hubspotFetch(
+    `/communication-preferences/v4/statuses/${encodeURIComponent(email)}?channel=EMAIL`,
+  );
+  const statuses =
+    (data?.results as Array<{ subscriptionId?: number; statusState?: string }> | undefined) ??
+    (data?.statuses as Array<{ subscriptionId?: number; statusState?: string }> | undefined) ??
+    [];
+
+  return statuses.find(
+    (status) => String(status.subscriptionId) === String(subscriptionId),
+  )?.statusState;
 }
 
 export async function subscribeToMarketingLens(
@@ -237,10 +269,17 @@ export async function syncMarketingPulseContactToHubSpot(
     return { skipped: true as const };
   }
 
+  const existing = await findContactByEmail(input.email);
+  const isNewContact = !existing;
   const consentSource = input.marketingConsent
     ? (input.consentSource ?? "results_form")
     : undefined;
-  const properties = buildMarketingPulseContactProperties(input, { consentSource });
+
+  const properties = buildMarketingPulseContactProperties(input, {
+    consentSource,
+    includeConsentFields: input.marketingConsent || isNewContact,
+  });
+
   const result = await upsertContactProperties(input.email, properties);
 
   if (input.marketingConsent) {
@@ -266,6 +305,11 @@ export async function recordMarketingLensOptIn(input: {
     return { skipped: true as const };
   }
 
+  const currentStatus = await getLensSubscriptionStatus(input.email);
+  if (currentStatus === "UNSUBSCRIBED") {
+    // Explicit TAP IN form resubscription is allowed by the guide.
+  }
+
   const now = toHubSpotDatetime();
   const properties: Record<string, string> = {
     email: input.email,
@@ -286,5 +330,20 @@ export async function recordMarketingLensOptIn(input: {
     console.error("HubSpot Marketing Lens subscription failed", error);
   }
 
+  return { skipped: false as const, ...result };
+}
+
+export async function recordStrategySparkSeshClick(email: string) {
+  if (!process.env.HUBSPOT_ACCESS_TOKEN) {
+    return { skipped: true as const };
+  }
+
+  const properties: Record<string, string> = {
+    email,
+    mp_strategy_spark_sesh_clicked: "true",
+    mp_strategy_spark_sesh_clicked_date: toHubSpotDatetime(),
+  };
+
+  const result = await upsertContactProperties(email, properties);
   return { skipped: false as const, ...result };
 }

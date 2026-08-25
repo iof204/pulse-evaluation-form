@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { buildTapInUrl } from "../../../lib/appUrl";
+import { buildStrategyClickUrl, buildTapInUrl } from "../../../lib/appUrl";
 import { evaluateSections } from "../../../lib/evaluateResults";
 import { syncMarketingPulseContactToHubSpot } from "../../../lib/hubspotSync";
 import { buildResultsEmailHtml, buildResultsEmailText } from "../../../lib/resultsEmailTemplate";
@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       businessName?: string;
       industry?: string;
       marketingConsent?: boolean;
+      hardestChallenge?: string;
       responses?: Responses;
     };
     const firstName = body.firstName?.trim() ?? "";
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
     const businessName = body.businessName?.trim() ?? "";
     const industry = body.industry?.trim() ?? "";
     const marketingConsent = Boolean(body.marketingConsent);
+    const hardestChallenge = body.hardestChallenge?.trim() ?? "";
     const responses = body.responses ?? {};
     if (!firstName || !industry || !/^\S+@\S+\.\S+$/.test(email)) {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       evaluated,
       marketingConsent,
       tapInUrl: buildTapInUrl(email),
+      strategyUrl: buildStrategyClickUrl(email),
     };
 
     const transporter = nodemailer.createTransport({
@@ -66,6 +69,7 @@ export async function POST(request: Request) {
         businessName,
         industry,
         marketingConsent,
+        hardestChallenge: hardestChallenge || undefined,
         responses,
         evaluated,
       });

@@ -22,3 +22,9 @@ export function buildTapInUrl(email?: string) {
   if (email) url.searchParams.set("email", email);
   return url.toString();
 }
+
+export function buildStrategyClickUrl(email?: string) {
+  const url = new URL("/api/strategy-click", getAppBaseUrl());
+  if (email) url.searchParams.set("email", email);
+  return url.toString();
+}

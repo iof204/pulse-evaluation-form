@@ -323,6 +323,19 @@ const properties = [
     groupName: "contactinformation",
     description: `Consent language version identifier (current: ${CONSENT_COPY_VERSION})`,
   },
+  booleanProperty(
+    "mp_strategy_spark_sesh_clicked",
+    "MP - Strategy Spark Sesh Clicked",
+    "Contact clicked Book A Strategy Spark Sesh",
+  ),
+  {
+    name: "mp_strategy_spark_sesh_clicked_date",
+    label: "MP - Strategy Spark Sesh Clicked Date",
+    type: "datetime",
+    fieldType: "date",
+    groupName: "contactinformation",
+    description: "When the Strategy Spark Sesh CTA was clicked",
+  },
 ];
 
 function resolveToken() {
@@ -427,6 +440,24 @@ const marketingLists = [
         {
           filterBranchType: "AND",
           filters: [boolFilter("mp_detailed_results_requested", true)],
+          filterBranches: [],
+        },
+      ],
+    },
+  },
+  {
+    name: "High-Intent Evaluation Leads",
+    processingType: "DYNAMIC",
+    filterBranch: {
+      filterBranchType: "OR",
+      filters: [],
+      filterBranches: [
+        {
+          filterBranchType: "AND",
+          filters: [
+            boolFilter("mp_detailed_results_requested", true),
+            boolFilter("mp_strategy_spark_sesh_clicked", true),
+          ],
           filterBranches: [],
         },
       ],

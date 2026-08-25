@@ -115,7 +115,7 @@ function TapInForm() {
         )}
 
         <p className="site-access__signoff">
-          <Link href="/privacy-policy">Privacy Policy</Link>
+          <Link href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</Link>
         </p>
       </section>
     </main>
