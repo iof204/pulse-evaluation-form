@@ -578,7 +578,7 @@ async function main() {
 Add to .env.local:
   HUBSPOT_ACCESS_TOKEN=<service-key-or-private-app-token>
   HUBSPOT_MARKETING_LENS_SUBSCRIPTION_ID=<id from above>
-  NEXT_PUBLIC_APP_URL=https://post-evaluation-form-v2.vercel.app
+  NEXT_PUBLIC_APP_URL=https://post-evaluation-form-v2-pi.vercel.app
 
 HubSpot UI checklist (cannot be automated via API):
 1) Settings → Marketing → Email → Subscription types
