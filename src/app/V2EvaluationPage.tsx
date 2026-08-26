@@ -8,16 +8,25 @@ import { evaluationQuestions } from "./questionnaireData";
 
 const resultsVideoId = evaluationQuestions.length + 1;
 
-const questionVideos: Partial<Record<number, string>> = {
-  1: "/videos/question-01.mp4",
+const questionVideos: Partial<Record<number, { src: string; poster: string }>> = {
+  1: {
+    src: "/videos/question-01.mp4",
+    poster: "/images/question-01-poster.jpg",
+  },
+  [resultsVideoId]: {
+    src: "/videos/results.mp4",
+    poster: "/images/results-poster.jpg",
+  },
 };
 
 function QuestionVideo({
   src,
+  poster,
   questionId,
   active,
 }: {
   src: string;
+  poster: string;
   questionId: number;
   active: boolean;
 }) {
@@ -55,7 +64,7 @@ function QuestionVideo({
         ref={videoRef}
         className="v2-video-card__video"
         src={src}
-        poster="/images/question-01-poster.jpg"
+        poster={poster}
         playsInline
         preload={active ? "auto" : "none"}
         aria-label={`Video for question ${questionId}`}
@@ -191,7 +200,7 @@ function VideoRail() {
         style={resultsPosition}
       >
         {[...evaluationQuestions.map(({ id }) => id), resultsVideoId].map((videoId) => {
-          const videoSource = questionVideos[videoId];
+          const video = questionVideos[videoId];
           return (
             <div
               key={videoId}
@@ -199,9 +208,10 @@ function VideoRail() {
               className={`v2-video-card${activeQuestion === videoId ? " is-active" : ""}${videoId === resultsVideoId ? " v2-video-card--results" : ""}`}
               aria-hidden={activeQuestion !== videoId ? true : undefined}
             >
-              {videoSource ? (
+              {video ? (
                 <QuestionVideo
-                  src={videoSource}
+                  src={video.src}
+                  poster={video.poster}
                   questionId={videoId}
                   active={activeQuestion === videoId}
                 />
