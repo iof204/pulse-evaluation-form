@@ -800,7 +800,7 @@ body {
 }
 
 .questionnaire__title-highlight {
-  color: #33185c;
+  color: #c39f5b;
 }
 
 .questionnaire__instruction {
@@ -1818,6 +1818,14 @@ body {
   color: #c39f5b;
 }
 
+.v2-evaluation-intro__title-purple {
+  color: #7c4d9e;
+}
+
+.v2-evaluation-intro__title-dark {
+  color: #7c4d9e;
+}
+
 .v2-evaluation-intro__card {
   margin-top: 26px;
 }
@@ -2483,6 +2491,10 @@ body {
   line-height: 1.28;
 }
 
+.results-header__gold {
+  color: #c39f5b;
+}
+
 .results-header > p:not(.questionnaire__meta) {
   max-width: 620px;
   margin: 20px auto 0;
@@ -2524,7 +2536,7 @@ body {
 }
 
 .results-glance {
-  margin-top: 42px;
+  margin-top: 28px;
 }
 
 .results-glance-card {
@@ -3840,6 +3852,16 @@ body {
   text-align: center;
 }
 
+@media (min-width: 600px) {
+  .results-full-results-modal__confirmation {
+    margin-top: 90px;
+  }
+
+  .results-full-results-modal__form-view {
+    margin-top: 54px;
+  }
+}
+
 .results-full-results-modal__confirmation p {
   max-width: 390px;
   margin: 14px auto 0;
@@ -4257,8 +4279,24 @@ body {
 }
 
 .v2-question-panel .results-page-compact .results-header h1 {
-  font-size: 24px;
-  line-height: 1.3;
+  color: #7c4d9e;
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 52px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+@media (max-width: 967px) {
+  .v2-question-panel .results-page-compact .results-header h1 {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 599px) {
+  .v2-question-panel .results-page-compact .results-header h1 {
+    font-size: 38px;
+  }
 }
 
 .v2-question-panel .results-page-compact .results-category-row strong {

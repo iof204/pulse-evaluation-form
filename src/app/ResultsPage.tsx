@@ -198,6 +198,7 @@ export default function ResultsPage({
   const [copiedEvaluationLink, setCopiedEvaluationLink] = useState(false);
   const [showSocialMenu, setShowSocialMenu] = useState(false);
   const [showFullResultsModal, setShowFullResultsModal] = useState(false);
+  const [fullResultsModalView, setFullResultsModalView] = useState<"form" | "confirmation">("form");
   const socialMenuRef = useRef<HTMLDivElement>(null);
 
   async function submitFullResults(event: React.FormEvent<HTMLFormElement>) {
@@ -231,6 +232,7 @@ export default function ResultsPage({
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Unable to send results.");
       setSubmitted(true);
+      setFullResultsModalView("confirmation");
       setShowFullResultsModal(true);
     } catch (error) {
       setSubmitError(
@@ -326,7 +328,11 @@ export default function ResultsPage({
     ];
     const evaluationShareCopy =
       "Take the Ecko Marketing Pulse Evaluation—a quick check-in to see what's working, what's building momentum, and what could use a little love.";
-    const openFullResultsModal = () => setShowFullResultsModal(true);
+    const openFullResultsModal = () => {
+      setFullResultsModalView("form");
+      setSubmitError("");
+      setShowFullResultsModal(true);
+    };
     const copyEvaluationLink = async () => {
       const shareUrl = new URL(window.location.href);
       shareUrl.search = "";
@@ -339,7 +345,11 @@ export default function ResultsPage({
       <main className="questionnaire-page results-page-minimal results-page-compact">
         <div className="results-content">
           <header className="results-header">
-            <h1>Good News: Your Marketing Has a Pulse!</h1>
+            <h1>
+              <span className="results-header__gold">Good News:</span>
+              <br />
+              Your Marketing Has a Pulse!
+            </h1>
           </header>
 
           <PulseGlanceCard counts={counts} />
@@ -603,7 +613,7 @@ export default function ResultsPage({
                     src="/images/ecko-marketing-logo.png"
                     alt="Ecko Marketing"
                   />
-                  {submitted ? (
+                  {fullResultsModalView === "confirmation" ? (
                     <div className="results-full-results-modal__confirmation" role="status">
                       <header>
                         <h2 id="full-results-modal-title">Your Full Evaluation Is on Its Way</h2>
@@ -625,7 +635,7 @@ export default function ResultsPage({
                       </a>
                     </div>
                   ) : (
-                    <>
+                    <div className="results-full-results-modal__form-view">
                       <header>
                         <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
                       </header>
@@ -641,7 +651,7 @@ export default function ResultsPage({
                         <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
                         {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
                       </form>
-                    </>
+                    </div>
                   )}
                 </div>
                 <figure className="results-full-results-modal__portrait">
@@ -678,7 +688,11 @@ export default function ResultsPage({
       <div className="results-content">
         <header className="results-header">
           <p className="questionnaire__meta">Results</p>
-          <h1>Good News: Your Marketing Has a Pulse</h1>
+          <h1>
+            <span className="results-header__gold">Good News:</span>
+            <br />
+            Your Marketing Has a Pulse!
+          </h1>
           <p>
             A quick look at what&apos;s clicking, where there may be room to grow,
             and what your results could mean for your marketing right now.

@@ -112,6 +112,9 @@ function sectionDetailHtml(section: EvaluatedSection, accentColor: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border:1px solid #e3e0e5;border-radius:12px;background:#ffffff;box-shadow:0 12px 28px rgba(34,18,51,.1)">
     <tr>
       <td style="padding:20px 20px 16px;border-bottom:1px solid #eeeaf0">
+        <div class="mobile-section-badge" style="display:none;margin:0 0 16px;text-align:center">
+          <span style="display:inline-block;padding:7px 12px;border-radius:8px;background:${theme.background};color:${theme.color};font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase">${escapeHtml(label)}</span>
+        </div>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td width="52" valign="top" style="width:52px;padding-top:2px;vertical-align:top">
@@ -121,7 +124,7 @@ function sectionDetailHtml(section: EvaluatedSection, accentColor: string) {
               <h4 style="margin:0;color:#33185c;font-size:20px;font-weight:600;line-height:1.3">${escapeHtml(section.name)}</h4>
               <p style="margin:5px 0 0;color:#544b5a;font-size:14px;line-height:1.65">${escapeHtml(detailedSectionReminder[section.key])}</p>
             </td>
-            <td valign="top" style="width:1%;padding-left:12px;vertical-align:top;white-space:nowrap">
+            <td class="desktop-section-badge" valign="top" style="width:1%;padding-left:12px;vertical-align:top;white-space:nowrap">
               <span style="display:inline-block;padding:7px 10px;border-radius:8px;background:${theme.background};color:${theme.color};font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase">${escapeHtml(label)}</span>
             </td>
           </tr>
@@ -288,7 +291,7 @@ function tapInBlockHtml(tapInUrl: string) {
 }
 
 function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:42px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.16)">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;table-layout:fixed;margin-top:42px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.16)">
     <tr>
       <td class="strategy-copy" width="50%" valign="middle" style="width:50%;vertical-align:middle;text-align:left">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -304,8 +307,8 @@ function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
           </tr>
         </table>
       </td>
-      <td class="strategy-image" width="50%" valign="middle" background="${portraitUrl}" style="width:50%;vertical-align:middle;overflow:hidden;background-color:#321c58;background-image:url('${portraitUrl}');background-position:center;background-repeat:no-repeat;background-size:cover">
-        <img src="${portraitUrl}" width="340" height="440" alt="Ecko Marketing strategist" style="display:block;width:100%;max-width:none;height:100%;min-height:100%;object-fit:cover;object-position:center;border:0;outline:none;text-decoration:none" />
+      <td class="strategy-image" width="50%" valign="middle" align="center" style="width:50%;vertical-align:middle;text-align:center;overflow:hidden;background:#321c58">
+        <img src="${portraitUrl}" width="340" alt="Ecko Marketing strategist" style="display:inline-block;width:100%;max-width:none;height:auto;vertical-align:top;border:0;outline:none;text-decoration:none" />
       </td>
     </tr>
   </table>`;
@@ -404,9 +407,11 @@ export function buildResultsEmailHtml({
     <title>Your Full Marketing Pulse Evaluation</title>
     <style type="text/css">
       @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;display=swap');
+      .strategy-image img { width:100% !important; max-width:100% !important; height:auto !important; }
       @media only screen and (max-width: 560px) {
         .strategy-copy, .strategy-image { display:block !important; width:100% !important; }
-        .strategy-image img { max-width:100% !important; height:auto !important; }
+        .mobile-section-badge { display:block !important; }
+        .desktop-section-badge { display:none !important; }
       }
     </style>
   </head>

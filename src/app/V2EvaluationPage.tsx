@@ -39,6 +39,7 @@ function QuestionVideo({
     if (!video) return;
     if (!active) {
       video.pause();
+      video.muted = true;
       return;
     }
 
@@ -145,7 +146,7 @@ function QuestionVideo({
   );
 }
 
-function VideoRail() {
+function VideoRail({ playbackEnabled }: { playbackEnabled: boolean }) {
   const [activeQuestion, setActiveQuestion] = useState(1);
   const [transitionPhase, setTransitionPhase] = useState<"idle" | "out" | "in">("idle");
   const [resultsPosition, setResultsPosition] = useState<CSSProperties | undefined>();
@@ -255,7 +256,7 @@ function VideoRail() {
                   src={video.src}
                   poster={video.poster}
                   questionId={videoId}
-                  active={activeQuestion === videoId}
+                  active={playbackEnabled && activeQuestion === videoId}
                 />
               ) : (
                 <span className="v2-video-card__media" aria-hidden="true">
@@ -279,9 +280,9 @@ function EvaluationIntro({ onStart }: { onStart: () => void }) {
         <div className="v2-evaluation-intro__heading">
           <div>
             <h1 id="evaluation-intro-title" className="questionnaire__title">
-              The Ecko
+              <span className="v2-evaluation-intro__title-dark">The Ecko</span>
               <br />
-              Marketing Pulse
+              <span className="v2-evaluation-intro__title-purple">Marketing Pulse</span>
               <br />
               <span className="v2-evaluation-intro__title-gold">Evaluation.</span>
             </h1>
@@ -367,7 +368,7 @@ export default function V2EvaluationPage() {
       <div
         className={`v2-evaluation-layout${showVideo ? "" : " v2-evaluation-layout--question-only"}`}
       >
-        <VideoRail />
+        <VideoRail playbackEnabled={showVideo} />
         <div className="v2-question-panel">
           {hasStarted ? (
             <Questionnaire
