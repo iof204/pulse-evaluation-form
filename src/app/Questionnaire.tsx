@@ -384,7 +384,6 @@ export default function Questionnaire({
         autoAdvanceOnSelect ? chooseSelectAnswer : storeSingleAnswer
       }
       onToggleValue={toggleAnswer}
-      onShowDetails={setAnswerDetails}
       showSectionProgress={showSectionProgress}
     />
   );

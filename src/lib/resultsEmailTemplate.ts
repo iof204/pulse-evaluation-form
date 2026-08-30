@@ -75,7 +75,7 @@ function emailHeaderHtml() {
 }
 
 function iconTheme(accentColor: string) {
-  if (accentColor === "#d4a017") return { background: "#f8efd8", color: "#d4a017" };
+  if (accentColor === "#c39f5b") return { background: "#f8efd8", color: "#c39f5b" };
   if (accentColor === "#c45c5c") return { background: "#fde8e8", color: "#c45c5c" };
   return { background: "#eee8f2", color: "#7c4d9e" };
 }
@@ -318,11 +318,11 @@ export function buildResultsEmailHtml({
       summary: "Top strengths you're doing well",
       badge: "Strong Foundation",
       badgeBackground: "#f8efd8",
-      badgeColor: "#b8860b",
-      accentColor: "#d4a017",
+      badgeColor: "#c39f5b",
+      accentColor: "#c39f5b",
       headerIcon: "thumbs-up",
       headerIconBackground: "#f8efd8",
-      headerIconColor: "#d4a017",
+      headerIconColor: "#c39f5b",
       sections: strongSections,
       emptyMessage: "No areas landed here this time.",
       industryLensKey: "clicking",

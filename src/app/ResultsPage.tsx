@@ -10,24 +10,8 @@ import {
   type ResultSectionDefinition,
 } from "./resultsData";
 import { sectionIconClasses } from "../lib/sectionIcons";
-import { OPEN_TEXT_SENSITIVE_DATA_NOTE } from "../lib/legalUrls";
 
 const sectionIcons = sectionIconClasses;
-
-function HardestChallengeField({ name }: { name: string }) {
-  return (
-    <label className="results-open-text">
-      <span>What&apos;s your hardest marketing challenge right now? (optional)</span>
-      <textarea
-        name={name}
-        rows={3}
-        maxLength={2000}
-        placeholder="Share what feels stuck, unclear, or overwhelming."
-      />
-      <small>{OPEN_TEXT_SENSITIVE_DATA_NOTE}</small>
-    </label>
-  );
-}
 
 type Responses = Record<number, string[]>;
 type EvaluatedSection = ResultSectionDefinition & {
@@ -155,6 +139,48 @@ function Insight({ section }: { section: EvaluatedSection }) {
         </div>
       </div>
     </article>
+  );
+}
+
+function PulseGlanceCard({ counts }: { counts: Record<ResultLevel, number> }) {
+  return (
+    <section className="results-glance" aria-labelledby="glance-title">
+      <div className="results-expanded-card results-glance-card">
+        <h2 id="glance-title">Marketing Pulse at a Glance</h2>
+        <div className="results-glance-card__grid">
+          <article className="results-glance-card__item results-glance-card__item--strong">
+            <span className="results-glance-card__icon" aria-hidden="true">
+              <i className="fas fa-trophy" />
+            </span>
+            <div>
+              <strong>{counts.strong}</strong>
+              <h3>Strong Foundation</h3>
+              <p>Solid strengths to build on.</p>
+            </div>
+          </article>
+          <article className="results-glance-card__item results-glance-card__item--building">
+            <span className="results-glance-card__icon" aria-hidden="true">
+              <i className="fas fa-arrow-trend-up" />
+            </span>
+            <div>
+              <strong>{counts.building}</strong>
+              <h3>Building Momentum</h3>
+              <p>Progress with room to grow.</p>
+            </div>
+          </article>
+          <article className="results-glance-card__item results-glance-card__item--needs-love">
+            <span className="results-glance-card__icon" aria-hidden="true">
+              <i className="far fa-heart" />
+            </span>
+            <div>
+              <strong>{counts["needs-love"]}</strong>
+              <h3>Needs a Little Love</h3>
+              <p>Areas where focused support can help.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -315,6 +341,8 @@ export default function ResultsPage({
             <h1>Good News: Your Marketing Has a Pulse!</h1>
           </header>
 
+          <PulseGlanceCard counts={counts} />
+
           <section className="results-block" aria-label="Marketing results">
             <div className="results-expanded-cards">
               {categories.map(
@@ -469,25 +497,23 @@ export default function ResultsPage({
                 </p>
               </div>
             </div>
-            {submitted ? (
-              <p className="results-email-minimal__success" role="status">
-                Your detailed results are on the way.
-              </p>
-            ) : (
-              <form onSubmit={submitFullResults}>
+            <form onSubmit={submitFullResults}>
                 <div className="results-form-grid">
                   <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
                   <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
                   <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                   <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
                 </div>
-                <HardestChallengeField name="hardestChallenge" />
                 <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
                 <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
                 <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
                 <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
                 {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
-              </form>
+            </form>
+            {submitted && (
+              <p className="results-email-minimal__success" role="status">
+                Your detailed results are on the way.
+              </p>
             )}
           </section>
 
@@ -568,29 +594,43 @@ export default function ResultsPage({
               >
                 <span aria-hidden="true">×</span>
               </button>
-              <header>
-                <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
-              </header>
-              {submitted ? (
-                <p className="results-full-results-modal__success" role="status">
-                  Your detailed results are on the way.
-                </p>
-              ) : (
-                <form onSubmit={submitFullResults}>
+              <div className="results-full-results-modal__body">
+                <div className="results-full-results-modal__content">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="results-full-results-modal__logo"
+                    src="/images/ecko-marketing-logo.png"
+                    alt="Ecko Marketing"
+                  />
+                  <header>
+                    <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
+                  </header>
+                  <form onSubmit={submitFullResults}>
                   <div className="results-form-grid">
                     <label>First Name<input name="modalFirstName" autoComplete="given-name" required /></label>
                     <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
                     <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
                     <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
                   </div>
-                  <HardestChallengeField name="modalHardestChallenge" />
                   <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
-                  <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
                   <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
                   <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
                   {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
-                </form>
-              )}
+                  </form>
+                  {submitted && (
+                    <p className="results-full-results-modal__success" role="status">
+                      Your detailed results are on the way.
+                    </p>
+                  )}
+                </div>
+                <figure className="results-full-results-modal__portrait">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/strategy-spark-portrait.webp"
+                    alt="Ecko Marketing strategist"
+                  />
+                </figure>
+              </div>
             </section>
           </div>
         , document.body)}
@@ -628,14 +668,7 @@ export default function ResultsPage({
           </small>
         </header>
 
-        <section className="results-block" aria-labelledby="glance-title">
-          <h2 id="glance-title">Marketing Pulse at a Glance</h2>
-          <div className="results-distribution">
-            <div><strong>{counts.strong}</strong><span>Strong Foundation</span></div>
-            <div><strong>{counts.building}</strong><span>Building Momentum</span></div>
-            <div><strong>{counts["needs-love"]}</strong><span>Needs a Little Love</span></div>
-          </div>
-        </section>
+        <PulseGlanceCard counts={counts} />
 
         {clicking.length > 0 && (
           <section className="results-block" aria-labelledby="clicking-title">
@@ -674,25 +707,23 @@ export default function ResultsPage({
               may be telling you, why they matter, and what to think about next.
             </p>
           </div>
-          {submitted ? (
-            <p className="results-email-minimal__success" role="status">
-              Your detailed results are on the way.
-            </p>
-          ) : (
-            <form onSubmit={submitFullResults}>
+          <form onSubmit={submitFullResults}>
               <div className="results-form-grid">
                 <label>First Name<input name="firstName" autoComplete="given-name" required /></label>
                 <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
                 <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                 <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
               </div>
-              <HardestChallengeField name="hardestChallenge" />
               <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
               <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
               <label className="results-check"><input type="checkbox" name="marketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
               <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Send Me My Detailed Results"}</button>
               {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
-            </form>
+          </form>
+          {submitted && (
+            <p className="results-email-minimal__success" role="status">
+              Your detailed results are on the way.
+            </p>
           )}
         </section>
 

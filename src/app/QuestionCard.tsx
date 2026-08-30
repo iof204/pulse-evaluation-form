@@ -7,6 +7,58 @@ import {
   type EvaluationQuestion,
 } from "./questionnaireData";
 
+const questionHighlights: Record<number, string[]> = {
+  1: ["biggest job", "right now?"],
+  2: ["how your business works?"],
+  3: ["where your business is today?"],
+  4: ["core message"],
+  5: ["how obvious", "same business?"],
+  6: ["primary audience?"],
+  7: ["messages, offers, or content"],
+  8: ["want your marketing to accomplish"],
+  9: ["meant to accomplish?"],
+  10: ["explain what you offer"],
+  11: ["where customers hesitate, ask for help, or drop off?"],
+  12: ["what is usually planned?"],
+  13: ["when and where to show up"],
+  14: ["find your business?"],
+  15: ["currently part of your mix?"],
+  16: ["work together?"],
+  17: ["repeat, adjust, or try differently"],
+  18: ["what usually happens next?"],
+  19: ["stay connected"],
+};
+
+function highlightedQuestionTitle(question: EvaluationQuestion) {
+  const phrases = questionHighlights[question.id] ?? [];
+  const segments: Array<{ text: string; highlighted: boolean }> = [];
+  let cursor = 0;
+
+  for (const phrase of phrases) {
+    const start = question.title.indexOf(phrase, cursor);
+    if (start < 0) continue;
+    if (start > cursor) {
+      segments.push({ text: question.title.slice(cursor, start), highlighted: false });
+    }
+    segments.push({ text: phrase, highlighted: true });
+    cursor = start + phrase.length;
+  }
+
+  if (cursor < question.title.length) {
+    segments.push({ text: question.title.slice(cursor), highlighted: false });
+  }
+
+  return segments.map(({ text, highlighted }, index) =>
+    highlighted ? (
+      <span className="questionnaire__title-highlight" key={`${text}-${index}`}>
+        {text}
+      </span>
+    ) : (
+      text
+    ),
+  );
+}
+
 type QuestionCardProps = {
   question: EvaluationQuestion;
   phase: "idle" | "exiting" | "entering";
@@ -14,7 +66,6 @@ type QuestionCardProps = {
   onChooseButton: (answer: AnswerOption) => void;
   onSelectValue: (answerId: string) => void;
   onToggleValue: (answerId: string) => void;
-  onShowDetails: (answer: AnswerOption) => void;
   showSectionProgress?: boolean;
 };
 
@@ -25,7 +76,6 @@ export default function QuestionCard({
   onChooseButton,
   onSelectValue,
   onToggleValue,
-  onShowDetails,
   showSectionProgress = false,
 }: QuestionCardProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -83,7 +133,7 @@ export default function QuestionCard({
         id="question-title"
         className={`questionnaire__title${hasLongTitle ? " questionnaire__title--long" : ""}`}
       >
-        {question.title}
+        {highlightedQuestionTitle(question)}
       </h1>
       <p className="questionnaire__instruction">
         {question.kind === "multi-select"
@@ -116,15 +166,6 @@ export default function QuestionCard({
                     <strong>{answer.label}</strong>
                   </span>
                 </label>
-                <button
-                  type="button"
-                  className="questionnaire__choice-info"
-                  aria-label={`Learn more about “${answer.label}”`}
-                  disabled={phase !== "idle"}
-                  onClick={() => onShowDetails(answer)}
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
               </div>
             );
           })}
@@ -153,15 +194,6 @@ export default function QuestionCard({
                   <strong>{answer.label}</strong>
                 </span>
               </label>
-              <button
-                type="button"
-                className="questionnaire__choice-info"
-                aria-label={`Learn more about “${answer.label}”`}
-                disabled={phase !== "idle"}
-                onClick={() => onShowDetails(answer)}
-              >
-                <span aria-hidden="true">+</span>
-              </button>
             </div>
           ))}
         </div>
