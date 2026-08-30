@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { buildStrategyClickUrl, buildTapInUrl } from "../../../lib/appUrl";
 import { evaluateSections } from "../../../lib/evaluateResults";
 import { syncMarketingPulseContactToHubSpot } from "../../../lib/hubspotSync";
@@ -45,6 +47,10 @@ export async function POST(request: Request) {
       tapInUrl: buildTapInUrl(email),
       strategyUrl: buildStrategyClickUrl(email),
     };
+    const [emailLogo, strategyPortrait] = await Promise.all([
+      readFile(path.join(process.cwd(), "public/images/ecko-marketing-logo-white.png")),
+      readFile(path.join(process.cwd(), "public/images/strategy-spark-email.webp")),
+    ]);
 
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -58,7 +64,25 @@ export async function POST(request: Request) {
       replyTo: sender,
       subject: "Your Full Marketing Pulse Evaluation",
       text: buildResultsEmailText(emailContent),
-      html: buildResultsEmailHtml(emailContent),
+      html: buildResultsEmailHtml({
+        ...emailContent,
+        logoUrl: "cid:ecko-marketing-logo",
+        strategyPortraitUrl: "cid:ecko-strategy-portrait",
+      }),
+      attachments: [
+        {
+          filename: "ecko-marketing-logo.png",
+          content: emailLogo,
+          contentType: "image/png",
+          cid: "ecko-marketing-logo",
+        },
+        {
+          filename: "ecko-strategy-portrait.webp",
+          content: strategyPortrait,
+          contentType: "image/webp",
+          cid: "ecko-strategy-portrait",
+        },
+      ],
       headers: { "X-Ecko-Marketing-Consent": marketingConsent ? "yes" : "no" },
     });
 

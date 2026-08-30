@@ -280,7 +280,7 @@ function tapInBlockHtml(tapInUrl: string) {
         <h2 style="margin:0;color:#33185c;font-size:20px;font-weight:600;line-height:1.3">Want to stay tapped in?</h2>
         <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Tap in to what&rsquo;s moving in marketing &mdash; from practical ideas and trends we&rsquo;re watching to takeaways from Marketing Real Talk by Ecko, Ecko updates, things worth questioning, and the occasional thing we think deserves a spot on your radar.</p>
         <div style="margin-top:20px;text-align:center">
-          <a href="${tapInUrl}" style="display:inline-block;padding:12px 20px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Tap In</a>
+          <a href="${tapInUrl}" style="display:inline-block;padding:12px 34px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Tap In</a>
         </div>
       </td>
     </tr>
@@ -290,16 +290,22 @@ function tapInBlockHtml(tapInUrl: string) {
 function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:42px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.16)">
     <tr>
-      <td class="strategy-copy" width="50%" valign="middle" style="width:50%;padding:30px 26px;vertical-align:middle;text-align:left">
-        ${emailIconCircle("phone", "#eee8f2", "#7c4d9e", 56)}
-        <h2 style="margin:18px 0 0;color:#33185c;font-size:20px;font-weight:600;line-height:1.35">Want to Talk It Through Instead?</h2>
-        <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Sometimes the hard part isn&rsquo;t seeing the gap&mdash;it&rsquo;s figuring out where to start, how the pieces should work together, or how to actually get it done while running a business. That&rsquo;s where Ecko can be your marketing sidekick. Let&rsquo;s spark some ideas.</p>
-        <div style="margin-top:22px;text-align:left">
-          <a href="${strategyUrl}" style="display:inline-block;padding:12px 20px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Book A Strategy Spark Sesh</a>
-        </div>
+      <td class="strategy-copy" width="50%" valign="middle" style="width:50%;vertical-align:middle;text-align:left">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:30px 30px 30px 26px">
+              ${emailIconCircle("phone", "#eee8f2", "#7c4d9e", 56)}
+              <h2 style="margin:18px 0 0;color:#33185c;font-size:20px;font-weight:600;line-height:1.35">Want to Talk It Through Instead?</h2>
+              <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Sometimes the hard part isn&rsquo;t seeing the gap&mdash;it&rsquo;s figuring out where to start, how the pieces should work together, or how to actually get it done while running a business. That&rsquo;s where Ecko can be your marketing sidekick. Let&rsquo;s spark some ideas.</p>
+              <div style="margin-top:22px;text-align:left">
+                <a href="${strategyUrl}" style="display:inline-block;padding:12px 20px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Book A Strategy Spark Sesh</a>
+              </div>
+            </td>
+          </tr>
+        </table>
       </td>
-      <td class="strategy-image" width="50%" valign="middle" style="width:50%;vertical-align:middle;background:#321c58">
-        <img src="${portraitUrl}" width="340" alt="Ecko Marketing strategist" style="display:block;width:100%;max-width:340px;height:auto;border:0;outline:none;text-decoration:none" />
+      <td class="strategy-image" width="50%" valign="middle" background="${portraitUrl}" style="width:50%;vertical-align:middle;overflow:hidden;background-color:#321c58;background-image:url('${portraitUrl}');background-position:center;background-repeat:no-repeat;background-size:cover">
+        <img src="${portraitUrl}" width="340" height="440" alt="Ecko Marketing strategist" style="display:block;width:100%;max-width:none;height:100%;min-height:100%;object-fit:cover;object-position:center;border:0;outline:none;text-decoration:none" />
       </td>
     </tr>
   </table>`;
@@ -413,7 +419,7 @@ export function buildResultsEmailHtml({
               <td style="padding:0">${emailHeaderHtml(logoUrl)}</td>
             </tr>
             <tr>
-              <td align="left" style="padding:56px 0 8px;text-align:left">
+              <td align="left" style="padding:56px 16px 8px;text-align:left">
                 <h1 style="margin:0;color:#2c1235;font-family:Poppins,'DM Sans',Arial,Helvetica,sans-serif;font-size:34px;font-weight:600;line-height:1.15;text-align:center">Your Full Marketing Pulse</h1>
                 <p style="max-width:560px;margin:16px auto 0;color:#544b5a;font-size:16px;line-height:1.6;text-align:center">A deeper look at what your answers may be telling you, why it matters, and where there may be room to strengthen your marketing.</p>
                 <p style="margin:18px 0 38px;text-align:center"><span style="display:inline-block;padding-bottom:7px;border-bottom:2px solid #7c4d9e;color:#7c4d9e;font-family:'Segoe Script','Brush Script MT','Snell Roundhand',cursive;font-size:24px;font-weight:600;line-height:1.2">Evolve. Elevate. Then Echo.</span></p>
@@ -423,7 +429,7 @@ export function buildResultsEmailHtml({
               </td>
             </tr>
             <tr>
-              <td style="padding:8px 0 40px">${pulseAtGlanceHtml(counts)}${cards.join("")}${perspectiveCardHtml(evaluated)}${reminderCardHtml()}${tapInHtml}${strategyBlockHtml(strategyUrl, strategyPortraitUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
+              <td style="padding:8px 16px 40px">${pulseAtGlanceHtml(counts)}${cards.join("")}${perspectiveCardHtml(evaluated)}${reminderCardHtml()}${tapInHtml}${strategyBlockHtml(strategyUrl, strategyPortraitUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
             </tr>
           </table>
         </td>
