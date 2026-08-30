@@ -119,11 +119,10 @@ export default function Header() {
       <div className="primary-header__content">
         <div className="branding">
           <Link className="logo" href="/">
-            {/* The original header uses a plain image with intrinsic proportions. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              alt="Ecko Marketing  "
-              src="https://d14tal8bchn59o.cloudfront.net/tT8kTKStgAOAqD3CF-vqwSdDxRBYUlCtZatT91hBmrM/w:1920/plain/https%3A%2F%2F02f0a56ef46d93f03c90-22ac5f107621879d5667e0d7ed595bdb.ssl.cf2.rackcdn.com%2Fsites%2F127849%2Fphotos%2F24248554%2FEK_Ecko_Logo_%2528Page_1%2529_original.png"
+              alt="Ecko Marketing"
+              src="/images/ecko-marketing-logo.png"
             />
           </Link>
 
