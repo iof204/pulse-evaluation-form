@@ -231,6 +231,7 @@ export default function ResultsPage({
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Unable to send results.");
       setSubmitted(true);
+      setShowFullResultsModal(true);
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : "Unable to send results.",
@@ -602,25 +603,45 @@ export default function ResultsPage({
                     src="/images/ecko-marketing-logo.png"
                     alt="Ecko Marketing"
                   />
-                  <header>
-                    <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
-                  </header>
-                  <form onSubmit={submitFullResults}>
-                  <div className="results-form-grid">
-                    <label>First Name<input name="modalFirstName" autoComplete="given-name" required /></label>
-                    <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
-                    <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
-                    <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
-                  </div>
-                  <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
-                  <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
-                  <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
-                  {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
-                  </form>
-                  {submitted && (
-                    <p className="results-full-results-modal__success" role="status">
-                      Your detailed results are on the way.
-                    </p>
+                  {submitted ? (
+                    <div className="results-full-results-modal__confirmation" role="status">
+                      <header>
+                        <h2 id="full-results-modal-title">Your Full Evaluation Is on Its Way</h2>
+                      </header>
+                      <p>
+                        Thank you! Check your inbox for your detailed Marketing Pulse
+                        results and a closer look at what your answers may be telling you.
+                        If you&apos;d like to talk through what comes next, book a Strategy
+                        Spark Sesh and let&apos;s spark some ideas together.
+                      </p>
+                      <p className="results-reminder-card__signoff results-full-results-modal__signoff">
+                        <span>Evolve. Elevate. Then Echo.</span>
+                      </p>
+                      <a
+                        className="questionnaire__continue results-full-results-modal__confirmation-button"
+                        href="tel:+17023774261"
+                      >
+                        Book A Strategy Spark Sesh
+                      </a>
+                    </div>
+                  ) : (
+                    <>
+                      <header>
+                        <h2 id="full-results-modal-title">See Your Full Evaluation</h2>
+                      </header>
+                      <form onSubmit={submitFullResults}>
+                        <div className="results-form-grid">
+                          <label>First Name<input name="modalFirstName" autoComplete="given-name" required /></label>
+                          <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
+                          <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
+                          <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
+                        </div>
+                        <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
+                        <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>
+                        <button className="questionnaire__continue" type="submit" disabled={submitting}>{submitting ? "Sending…" : "Email My Results"}</button>
+                        {submitError && <p className="results-email-minimal__error" role="alert">{submitError}</p>}
+                      </form>
+                    </>
                   )}
                 </div>
                 <figure className="results-full-results-modal__portrait">
