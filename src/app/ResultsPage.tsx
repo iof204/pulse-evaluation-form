@@ -514,6 +514,19 @@ export default function ResultsPage({
                   <label>Email Address<input name="email" type="email" autoComplete="email" required /></label>
                   <label><span className="results-field-label">Business Name</span><input name="businessName" autoComplete="organization" /></label>
                   <label>Industry<select name="industry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
+                  <label className="results-email-minimal__challenge-field">
+                    Share what feels stuck, unclear, or overwhelming.
+                    <textarea
+                      className="results-email-minimal__challenge"
+                      name="hardestChallenge"
+                      rows={1}
+                      onInput={(event) => {
+                        const field = event.currentTarget;
+                        field.style.height = "auto";
+                        field.style.height = `${Math.max(42, field.scrollHeight)}px`;
+                      }}
+                    />
+                  </label>
                 </div>
                 <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
                 <p className="results-email-minimal__note">Tap in to what&apos;s moving in marketing. We&apos;ll send occasional practical ideas, trends and shifts we&apos;re watching, things worth questioning, takeaways from Marketing Real Talk by Ecko, Ecko updates, and the occasional &ldquo;hey, this should probably be on your radar&rdquo; moment.</p>
@@ -645,6 +658,19 @@ export default function ResultsPage({
                           <label>Email Address<input name="modalEmail" type="email" autoComplete="email" required /></label>
                           <label><span className="results-field-label">Business Name</span><input name="modalBusinessName" autoComplete="organization" /></label>
                           <label>Industry<select name="modalIndustry" defaultValue="" required><option value="" disabled>Select your industry</option><option>Professional Services</option><option>Retail or E-commerce</option><option>Hospitality or Food Service</option><option>Health or Wellness</option><option>Real Estate or Construction</option><option>Nonprofit or Community</option><option>Technology or B2B</option><option>Other</option></select></label>
+                          <label className="results-email-minimal__challenge-field">
+                            Share what feels stuck, unclear, or overwhelming.
+                            <textarea
+                              className="results-email-minimal__challenge"
+                              name="modalHardestChallenge"
+                              rows={1}
+                              onInput={(event) => {
+                                const field = event.currentTarget;
+                                field.style.height = "auto";
+                                field.style.height = `${Math.max(42, field.scrollHeight)}px`;
+                              }}
+                            />
+                          </label>
                         </div>
                         <label className="results-check"><input type="checkbox" required /><span>By submitting this form, you&apos;re asking Ecko Mktg to email your detailed Marketing Pulse results and allowing us to use the information you provided to generate and deliver them. See our <a href="/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.</span></label>
                         <label className="results-check"><input type="checkbox" name="modalMarketingConsent" /><span>Yes, I&apos;d like to tap in to Ecko&apos;s Marketing Lens and receive occasional marketing emails from Ecko Mktg. I can unsubscribe anytime.</span></label>

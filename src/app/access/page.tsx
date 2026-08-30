@@ -32,7 +32,7 @@ export default function AccessPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="site-access__logo"
-          src="https://d14tal8bchn59o.cloudfront.net/tT8kTKStgAOAqD3CF-vqwSdDxRBYUlCtZatT91hBmrM/w:1920/plain/https%3A%2F%2F02f0a56ef46d93f03c90-22ac5f107621879d5667e0d7ed595bdb.ssl.cf2.rackcdn.com%2Fsites%2F127849%2Fphotos%2F24248554%2FEK_Ecko_Logo_%2528Page_1%2529_original.png"
+          src="/images/ecko-marketing-logo.png"
           alt="Ecko Marketing"
         />
         <h1>Let&apos;s check your pulse.</h1>
