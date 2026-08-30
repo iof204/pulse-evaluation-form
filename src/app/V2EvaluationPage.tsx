@@ -230,8 +230,77 @@ function VideoRail() {
   );
 }
 
+function EvaluationIntro({ onStart }: { onStart: () => void }) {
+  return (
+    <main className="questionnaire-page results-page-compact v2-evaluation-intro">
+      <section className="questionnaire" aria-labelledby="evaluation-intro-title">
+        <div className="v2-evaluation-intro__heading">
+          <div>
+            <h1 id="evaluation-intro-title" className="questionnaire__title">
+              The Ecko
+              <br />
+              Marketing Pulse
+              <br />
+              <span className="v2-evaluation-intro__title-gold">Evaluation.</span>
+            </h1>
+          </div>
+        </div>
+
+        <div className="results-expanded-card results-expanded-card--reminder v2-evaluation-intro__card">
+          <div className="results-category-details results-expanded-card__details">
+            <blockquote className="v2-evaluation-intro__quote">
+              <span aria-hidden="true">&ldquo;</span>
+              A quick, judgment-free look at what is clicking, what could use a
+              little love, and where your marketing may be leaving opportunity
+              on the table.
+            </blockquote>
+
+            <ul className="v2-evaluation-intro__features">
+              <li>
+                <span className="results-section-title__icon" aria-hidden="true">
+                  <i className="fas fa-heart-pulse" />
+                </span>
+                <strong>Honest insights about your marketing mix</strong>
+              </li>
+              <li>
+                <span className="results-section-title__icon" aria-hidden="true">
+                  <i className="far fa-circle-question" />
+                </span>
+                <strong>Simple, friendly questions (no jargon)</strong>
+              </li>
+              <li>
+                <span className="results-section-title__icon" aria-hidden="true">
+                  <i className="far fa-clock" />
+                </span>
+                <strong>Takes 5 minutes to complete</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="questionnaire__continue v2-evaluation-intro__button"
+          onClick={onStart}
+        >
+          Take the Evaluation
+        </button>
+      </section>
+    </main>
+  );
+}
+
 export default function V2EvaluationPage() {
+  const [hasStarted, setHasStarted] = useState(false);
   const [activeView, setActiveView] = useState(1);
+
+  useEffect(() => {
+    if (hasStarted) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("question");
+    url.searchParams.delete("results");
+    window.history.replaceState(window.history.state, "", url);
+  }, [hasStarted]);
 
   useEffect(() => {
     function updateActiveView(event: Event) {
@@ -248,7 +317,7 @@ export default function V2EvaluationPage() {
     };
   }, []);
 
-  const showVideo = activeView === 1 || activeView === resultsVideoId;
+  const showVideo = !hasStarted || activeView === resultsVideoId;
 
   return (
     <>
@@ -258,13 +327,17 @@ export default function V2EvaluationPage() {
       >
         <VideoRail />
         <div className="v2-question-panel">
-          <Questionnaire
-            autoAdvanceOnSelect
-            compactResults
-            exitDuration={720}
-            inlineAnswerDetails
-            scrollToTopOnQuestionChange
-          />
+          {hasStarted ? (
+            <Questionnaire
+              autoAdvanceOnSelect
+              compactResults
+              exitDuration={720}
+              inlineAnswerDetails
+              scrollToTopOnQuestionChange
+            />
+          ) : (
+            <EvaluationIntro onStart={() => setHasStarted(true)} />
+          )}
         </div>
       </div>
       <Footer />
