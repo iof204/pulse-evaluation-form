@@ -7,6 +7,7 @@ export type EmailIconName =
   | "eye"
   | "star"
   | "calendar-days"
+  | "phone"
   | "chart-line"
   | "envelope"
   | "binoculars";
@@ -77,6 +78,11 @@ const iconDefinitions: Record<EmailIconName, IconDefinition> = {
     paths:
       'd="M128 0c17.7 0 32 14.3 32 32l0 32 128 0 0-32c0-17.7 14.3-32 32-32s32 14.3 32 32l0 32 32 0c35.3 0 64 28.7 64 64l0 288c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 128C0 92.7 28.7 64 64 64l32 0 0-32c0-17.7 14.3-32 32-32zM64 240l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm128 0l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM64 368l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zm112 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16z"',
   },
+  phone: {
+    viewBox: "0 0 512 512",
+    paths:
+      'd="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.6 30 0 45.4 0 62.9 0 310.6 200.8 512 448.5 512c17.4 0 32.8-12.6 37.4-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6l-40.4 49.4c-70.4-33.3-127-90-160.4-160.4l49.4-40.4c13.7-11.2 18.4-30 11.6-46.3l-40-96z"',
+  },
   envelope: {
     viewBox: "0 0 512 512",
     paths:
@@ -109,16 +115,20 @@ function getIconSvg(icon: EmailIconName, color: string) {
 
 function solidCircleHtml({
   background,
+  borderColor,
   contentHtml,
+  shadow,
   size,
 }: {
   background: string;
+  borderColor?: string;
   contentHtml: string;
+  shadow?: boolean;
   size: number;
 }) {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="display:inline-table">
     <tr>
-      <td align="center" valign="middle" width="${size}" height="${size}" style="width:${size}px;height:${size}px;border-radius:${size / 2}px;background:${background};text-align:center;vertical-align:middle;line-height:1">
+      <td align="center" valign="middle" width="${size}" height="${size}" style="width:${size}px;height:${size}px;${borderColor ? `border:1px solid ${borderColor};` : ""}${shadow ? "box-shadow:0 8px 18px rgba(34,18,51,.16);" : ""}border-radius:${size / 2}px;background:${background};text-align:center;vertical-align:middle;line-height:1">
         ${contentHtml}
       </td>
     </tr>
@@ -129,13 +139,17 @@ export function emailIconCircle(
   icon: EmailIconName,
   background: string,
   color: string,
-  size: 36 | 40 | 56 = 36,
+  size: 36 | 40 | 56 | 64 = 36,
+  borderColor?: string,
+  shadow = false,
 ) {
-  const iconSize = size === 56 ? 26 : size === 40 ? 18 : 15;
+  const iconSize = size === 64 ? 30 : size === 56 ? 26 : size === 40 ? 18 : 15;
   const uri = svgDataUri(getIconSvg(icon, color));
 
   return solidCircleHtml({
     background,
+    borderColor,
+    shadow,
     size,
     contentHtml: `<img src="${uri}" width="${iconSize}" height="${iconSize}" alt="" style="display:block;margin:0 auto;border:0" />`,
   });
@@ -160,7 +174,7 @@ export function iconSectionRowHtml({
   title: string;
   bodyHtml: string;
   titleColor: string;
-  iconSize?: 36 | 40 | 56;
+  iconSize?: 36 | 40 | 56 | 64;
 }) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>

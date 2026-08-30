@@ -9,7 +9,10 @@ export default function EmailPreviewPage() {
     notFound();
   }
 
-  const html = buildResultsEmailHtml(createSampleResultsEmailInput());
+  const html = buildResultsEmailHtml({
+    ...createSampleResultsEmailInput(),
+    logoUrl: "/images/ecko-marketing-logo-white.png",
+  });
 
   return (
     <main
@@ -17,7 +20,7 @@ export default function EmailPreviewPage() {
         minHeight: "100vh",
         margin: 0,
         padding: "24px 16px 48px",
-        background: "#ffffff",
+        background: "#FBF7F3",
         fontFamily: "Arial, sans-serif",
       }}
     >
@@ -76,7 +79,7 @@ export default function EmailPreviewPage() {
               width: "100%",
               minHeight: 3200,
               border: 0,
-              background: "#ffffff",
+              background: "#FBF7F3",
             }}
           />
         </div>
