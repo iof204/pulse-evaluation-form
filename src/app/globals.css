@@ -5655,6 +5655,7 @@ body {
 .tap-in-confirmation button:disabled { opacity: .65; }
 .tap-in-confirmation__copy .tap-in-confirmation__consent { max-width: 350px; margin-top: 14px; font-size: 12px; }
 .tap-in-confirmation__copy .tap-in-confirmation__error { color: #a63a62; font-size: 13px; }
+.tap-in-confirmation__copy .tap-in-confirmation__success { margin-top: 24px; color: #633485; font-size: 15px; font-weight: 600; }
 .tap-in-confirmation__copy .tap-in-confirmation__privacy { margin-top: 22px; font-size: 12px; }
 .tap-in-confirmation__privacy a { color: #633485; font-weight: 600; }
 

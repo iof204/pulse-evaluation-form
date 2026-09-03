@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
 function TapInConfirmation() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
   async function confirm() {
@@ -22,7 +22,8 @@ function TapInConfirmation() {
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Unable to complete opt-in.");
-      router.push("/tapped-in");
+      setSubmitted(true);
+      window.setTimeout(() => window.close(), 700);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to complete opt-in.");
     } finally {
@@ -42,7 +43,11 @@ function TapInConfirmation() {
               Confirm below to receive occasional ideas, trends, Marketing Real Talk
               takeaways, and updates from Ecko&apos;s Marketing Lens.
             </p>
-            {!token ? (
+            {submitted ? (
+              <p className="tap-in-confirmation__success" role="status">
+                You&apos;re tapped in. This window will close automatically.
+              </p>
+            ) : !token ? (
               <p className="tap-in-confirmation__error" role="alert">
                 This Tap In link is missing or invalid. Please use the link in your Marketing Pulse email.
               </p>
