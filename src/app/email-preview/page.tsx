@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { buildTapInUrl } from "../../lib/appUrl";
 import {
   buildResultsEmailHtml,
@@ -6,10 +5,6 @@ import {
 } from "../../lib/resultsEmailTemplate";
 
 export default function EmailPreviewPage() {
-  if (process.env.NODE_ENV === "production") {
-    notFound();
-  }
-
   const html = buildResultsEmailHtml({
     ...createSampleResultsEmailInput(),
     logoUrl: "/images/ecko-marketing-logo-white.png",
