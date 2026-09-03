@@ -47,7 +47,7 @@ const EMAIL_HEADER_BACKGROUND_URL =
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character] ?? character);
 
-function emailHeaderHtml(logoUrl: string) {
+export function emailHeaderHtml(logoUrl: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;border:0">
     <tr>
       <td bgcolor="#24102f" background="${EMAIL_HEADER_BACKGROUND_URL}" style="background-color:#24102f;background-image:url('${EMAIL_HEADER_BACKGROUND_URL}');background-position:center;background-repeat:no-repeat;background-size:cover;padding:14px 0;overflow:hidden">
@@ -308,7 +308,7 @@ function tapInBlockHtml(tapInUrl: string) {
   </table>`;
 }
 
-function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
+export function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;table-layout:fixed;margin-top:42px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.16)">
     <tr>
       <td class="strategy-copy" width="50%" valign="middle" style="width:50%;vertical-align:middle;text-align:left">
@@ -332,7 +332,7 @@ function strategyBlockHtml(strategyUrl: string, portraitUrl: string) {
   </table>`;
 }
 
-function shareBlockHtml(evaluationUrl: string) {
+export function shareBlockHtml(evaluationUrl: string) {
   const encodedEvaluationUrl = encodeURIComponent(evaluationUrl);
   const encodedShareCopy = encodeURIComponent(SHARE_COPY);
 
@@ -350,7 +350,7 @@ function shareBlockHtml(evaluationUrl: string) {
   </table>`;
 }
 
-function footerHtml(businessName?: string, industry?: string) {
+export function footerHtml(businessName?: string, industry?: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="padding:32px 8px;text-align:center;color:#321c58">

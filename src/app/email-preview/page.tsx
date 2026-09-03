@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { buildTapInUrl } from "../../lib/appUrl";
 import {
   buildResultsEmailHtml,
   createSampleResultsEmailInput,
@@ -12,6 +13,12 @@ export default function EmailPreviewPage() {
   const html = buildResultsEmailHtml({
     ...createSampleResultsEmailInput(),
     logoUrl: "/images/ecko-marketing-logo-white.png",
+    tapInUrl: buildTapInUrl(
+      "alex@example.com",
+      "Alex",
+      "Northline Studio",
+      "Professional Services",
+    ),
   });
 
   return (

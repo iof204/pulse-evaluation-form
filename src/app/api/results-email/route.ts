@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       evaluated,
       responses,
       marketingConsent,
-      tapInUrl: buildTapInUrl(email),
+      tapInUrl: buildTapInUrl(email, firstName, businessName, industry),
       strategyUrl: buildStrategyClickUrl(email),
     };
     const [emailLogo, strategyPortrait] = await Promise.all([

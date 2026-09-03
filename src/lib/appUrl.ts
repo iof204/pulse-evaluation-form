@@ -1,4 +1,5 @@
 import { DEFAULT_EVALUATION_URL } from "./resultsEmailTemplate";
+import { createTapInToken } from "./tapInToken";
 
 export function getAppBaseUrl() {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -17,9 +18,19 @@ export function getAppBaseUrl() {
   }
 }
 
-export function buildTapInUrl(email?: string) {
+export function buildTapInUrl(
+  email?: string,
+  firstName?: string,
+  businessName?: string,
+  industry?: string,
+) {
   const url = new URL("/tap-in", getAppBaseUrl());
-  if (email) url.searchParams.set("email", email);
+  if (email) {
+    url.searchParams.set(
+      "token",
+      createTapInToken(email, firstName, businessName, industry),
+    );
+  }
   return url.toString();
 }
 
