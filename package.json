@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "qa:pulse": "tsc src/lib/evaluateResults.ts src/app/resultsData.ts src/app/questionnaireData.ts src/lib/detailedResultsData.ts src/lib/emailIcons.ts src/lib/resultsEmailTemplate.ts --module commonjs --target es2020 --esModuleInterop --outDir /tmp/ecko-pulse-logic-qa --skipLibCheck && node scripts/verify-marketing-pulse-logic.cjs /tmp/ecko-pulse-logic-qa",
     "hubspot:setup": "node scripts/setup-hubspot-marketing-pulse.mjs",
     "hubspot:visibility": "node scripts/setup-hubspot-crm-visibility.mjs",
     "hubspot:ui": "node scripts/configure-hubspot-ui.mjs",

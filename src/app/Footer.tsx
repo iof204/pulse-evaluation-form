@@ -11,17 +11,18 @@ export default function Footer() {
                 <div className="about-title wysiwyg-text">
                   <h1>
                     <strong>
-                      <span className="font-size-s">About Ecko Marketing&nbsp;&nbsp;</span>
+                      <span className="font-size-s">About ECKO Marketing&nbsp;&nbsp;</span>
                     </strong>
                   </h1>
                 </div>
                 <div className="about-content wysiwyg-text">
                   <span className="font-size-s">
-                    Ecko Mktg is a Las Vegas-based marketing consultancy helping
-                    businesses grow through thoughtful strategy, creative
-                    problem-solving, and marketing that works. Think of us as your
-                    Marketing Sidekick - here to bring clarity, confidence, and
-                    measurable results to every stage of your business.
+                    Ecko Mktg is a Las Vegas-based marketing consultancy that helps
+                    businesses get clarity on their strategy — then builds the
+                    roadmap, creative, and campaigns to bring it to life. Think of us
+                    as your marketing sidekick: bold strategy, creative sparks, and
+                    smart media moves that make your business echo in Las Vegas and
+                    beyond.
                   </span>
                   <br />
                   <br />
@@ -93,19 +94,6 @@ export default function Footer() {
                     </div>
                   </div>
 
-                  <div className="location__item">
-                    <div className="location__icon">
-                      <i className="fa-solid fa-clock" />
-                    </div>
-                    <div className="location__content">
-                      <span className="location-hours-day">Monday - Friday:</span>{" "}
-                      9:00am - 5:00pm
-                      <br />
-                      <span className="location-hours-day">Saturday - Sunday:</span>{" "}
-                      Closed
-                      <br />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -128,13 +116,13 @@ export default function Footer() {
             {" "}
             <li>
               <Link href="/meet-bri">
-                <div>Meet Bri </div>
+                <div>Meet Your Sidekicks</div>
               </Link>
             </li>
             {" "}
             <li>
               <Link href="/let-s-talk">
-                <div>Let&apos;s Talk</div>
+                <div>Let&apos;s Chat</div>
               </Link>
             </li>
           </ul>

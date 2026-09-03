@@ -1,4 +1,11 @@
 export type ResultLevel = "strong" | "building" | "needs-love";
+export type PerspectiveKey =
+  | "all-strong"
+  | "strong-overall"
+  | "strong-with-gaps"
+  | "building"
+  | "mixed"
+  | "several-needs-love";
 export type ResultSectionKey =
   | "brand"
   | "audience"
@@ -208,7 +215,7 @@ export const resultSections: ResultSectionDefinition[] = [
     name: "Customer Action & Retention",
     questionIds: [18, 19],
     reminder:
-      "How well your business turns interest into action and stays connected after someone becomes a customer.",
+      "How well your business turns interest into action — and stays connected after someone becomes a customer.",
     snapshots: {
       strong: {
         label: "Strong Foundation",
@@ -243,9 +250,38 @@ export const perspectiveCopy = {
   "strong-with-gaps":
     "You have a strong base to build from, with a few areas that may deserve a closer look. Those smaller gaps can sometimes make the rest of your marketing feel harder than it needs to be.",
   building:
-    "There are good pieces in motion, but some may not be fully connected yet. That can make marketing feel busier or more overwhelming than it needs to be—even when you are doing a lot of things right.",
+    "There are good pieces in motion, but some may not be fully connected yet. That can make marketing feel busier or more overwhelming than it needs to be — even when you are doing a lot of things right.",
   mixed:
     "Your results show a mix of strong areas and places that may need more clarity or attention. Looking at how those pieces affect one another can help reveal where the biggest opportunities may be.",
   "several-needs-love":
-    "A few parts of your marketing may be asking for more attention right now. That does not mean everything needs to be fixed at once—identifying the gaps is the first step toward figuring out what actually deserves your energy.",
+    "A few parts of your marketing may be asking for more attention right now. That does not mean everything needs to be fixed at once — identifying the gaps is the first step toward figuring out what actually deserves your energy.",
 } as const;
+
+export const detailedPerspectiveCopy: Record<PerspectiveKey, string[]> = {
+  "all-strong": [
+    "Your results suggest that you have a strong marketing foundation across the areas we reviewed. That does not mean there is nothing left to improve — marketing should continue to evolve alongside your business, customers, and goals.",
+    "At this stage, the opportunity is less about correcting gaps and more about continuing to refine, test, learn, and build on what is already working.",
+    "Keep the momentum going.",
+  ],
+  "strong-overall": [
+    "Your results suggest that you have a solid marketing foundation in place. The different parts of your marketing appear to be working with intention, and you have several strong areas to continue building from.",
+    "The opportunity now is less about “fixing” your marketing and more about refining what is already working, staying connected to your goals, and making sure your marketing continues to evolve as the business grows.",
+  ],
+  "strong-with-gaps": [
+    "You have a lot of good pieces in place. Your results suggest that the foundation is there, but a few areas may not be working as intentionally or consistently as the rest.",
+    "That matters because even one or two disconnected pieces can make marketing feel harder than it needs to be. The good news is that you are not starting from scratch — you already have strengths to build from.",
+  ],
+  building: [
+    "Your results suggest that your marketing is moving in the right direction, but some of the pieces may not be fully connected yet.",
+    "You are likely doing a number of things that are working. The bigger opportunity is creating more clarity around how those efforts support one another, what deserves your attention, and what is actually helping move the business forward.",
+    "This is often where marketing can start to feel busy or overwhelming: there is activity, but the bigger picture can be harder to see.",
+  ],
+  mixed: [
+    "Your results show a bit of a mixed picture — and that is not necessarily a bad thing. Some parts of your marketing appear to have a strong foundation, while others may need more clarity, connection, or attention.",
+    "Rather than looking at this as a list of things to fix, it may be more useful to look at how the different pieces are affecting one another. Strengthening one or two key areas may help other parts of your marketing work more effectively too.",
+  ],
+  "several-needs-love": [
+    "Your results suggest that several parts of your marketing may be working independently, reactively, or without as much clarity as you would like.",
+    "That does not mean you need to overhaul everything at once. In fact, trying to tackle every area at the same time can make marketing feel even more overwhelming. A more useful starting point is identifying which areas may be creating the biggest gaps and focusing your attention there first.",
+  ],
+};

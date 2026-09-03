@@ -2,6 +2,7 @@ import type { ResultSectionKey } from "../app/resultsData";
 
 export type EmailIconName =
   | ResultSectionKey
+  | "trophy"
   | "thumbs-up"
   | "target-dart"
   | "eye"
@@ -18,6 +19,11 @@ type IconDefinition = {
 };
 
 const iconDefinitions: Record<EmailIconName, IconDefinition> = {
+  trophy: {
+    viewBox: "0 0 512 512",
+    paths:
+      'd="M80 32h352v80h16c35.3 0 64 28.7 64 64s-28.7 64-64 64h-25.6c-13.1 49.3-48.8 89.4-94.4 108.2V400h56c26.5 0 48 21.5 48 48v32H80v-32c0-26.5 21.5-48 48-48h56v-51.8C138.4 329.4 102.7 289.3 89.6 240H64c-35.3 0-64-28.7-64-64s28.7-64 64-64h16V32zm0 128H64c-8.8 0-16 7.2-16 16s7.2 16 16 16h18.1c-1.4-10.5-2.1-21.2-2.1-32zm352 0c0 10.8-.7 21.5-2.1 32H448c8.8 0 16-7.2 16-16s-7.2-16-16-16h-16z"',
+  },
   brand: {
     viewBox: "0 0 512 512",
     paths:

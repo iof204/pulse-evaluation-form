@@ -1,11 +1,12 @@
 import {
   countLevels,
   evaluateSections,
+  getPerspectiveKey,
+  selectPriorityAreas,
   type EvaluatedSection,
   type Responses,
 } from "./evaluateResults";
-import type { ResultLevel, ResultSectionKey } from "../app/resultsData";
-import { perspectiveCopy } from "../app/resultsData";
+import type { ResultSectionKey } from "../app/resultsData";
 
 export const HUBSPOT_CONSENT_COPY_VERSION = "ecko-lens-v1-2026-08";
 
@@ -21,24 +22,8 @@ const sectionToPlanningKey: Record<ResultSectionKey, string> = {
   retention: "retention",
 };
 
-type PerspectiveKey = keyof typeof perspectiveCopy;
-
-function perspectiveKeyFromCounts(counts: Record<ResultLevel, number>): PerspectiveKey {
-  if (counts.strong === 7) return "all-strong";
-  if (counts.strong >= 5 && counts["needs-love"] === 0) return "strong-overall";
-  if (counts.strong >= 4 && counts["needs-love"] <= 2) return "strong-with-gaps";
-  if (counts.building >= 4 && counts["needs-love"] <= 2) return "building";
-  if (counts["needs-love"] >= 4) return "several-needs-love";
-  return "mixed";
-}
-
-function priorityAreas(evaluated: EvaluatedSection[]) {
-  const ranked = [...evaluated].sort((a, b) => {
-    const rank = (level: ResultLevel) =>
-      level === "needs-love" ? 0 : level === "building" ? 1 : 2;
-    const byLevel = rank(a.level) - rank(b.level);
-    return byLevel !== 0 ? byLevel : a.score - b.score;
-  });
+function priorityAreas(evaluated: EvaluatedSection[], responses: Responses) {
+  const ranked = selectPriorityAreas(evaluated, responses);
   return {
     priority1: ranked[0]?.key,
     priority2: ranked[1]?.key,
@@ -74,8 +59,8 @@ export function buildMarketingPulseContactProperties(
 ) {
   const evaluated = input.evaluated ?? evaluateSections(input.responses);
   const counts = countLevels(evaluated);
-  const perspectiveKey = perspectiveKeyFromCounts(counts);
-  const { priority1, priority2 } = priorityAreas(evaluated);
+  const perspectiveKey = getPerspectiveKey(counts);
+  const { priority1, priority2 } = priorityAreas(evaluated, input.responses);
   const now = toHubSpotDatetime();
   const consentSource = options?.consentSource ?? input.consentSource;
   const includeConsentFields = options?.includeConsentFields ?? input.marketingConsent;

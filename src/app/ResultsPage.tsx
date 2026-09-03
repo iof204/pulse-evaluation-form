@@ -2,40 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { evaluationQuestions } from "./questionnaireData";
+import type { ResultLevel } from "./resultsData";
 import {
-  perspectiveCopy,
-  resultSections,
-  type ResultLevel,
-  type ResultSectionDefinition,
-} from "./resultsData";
+  evaluateSections,
+  getPerspective,
+  rankPrioritySections,
+  type EvaluatedSection,
+  type Responses,
+} from "../lib/evaluateResults";
 import { sectionIconClasses } from "../lib/sectionIcons";
 
 const sectionIcons = sectionIconClasses;
 
-type Responses = Record<number, string[]>;
-type EvaluatedSection = ResultSectionDefinition & {
-  score: number;
-  level: ResultLevel;
-};
-
-function scoreForQuestion(questionId: number, responses: Responses) {
-  const question = evaluationQuestions.find(({ id }) => id === questionId);
-  const answerId = responses[questionId]?.[0];
-  return question?.answers.find(({ id }) => id === answerId)?.score ?? 0;
-}
-
-function evaluateSections(responses: Responses): EvaluatedSection[] {
-  return resultSections.map((section) => {
-    const score = section.questionIds.reduce(
-      (total, questionId) => total + scoreForQuestion(questionId, responses),
-      0,
-    );
-    const level: ResultLevel =
-      score >= 7 ? "strong" : score >= 5 ? "building" : "needs-love";
-    return { ...section, score, level };
-  });
-}
 
 function shareResults(
   platform: "facebook" | "x" | "linkedin" | "email",
@@ -58,43 +36,6 @@ function shareResults(
   }
 
   window.open(destinations[platform], "_blank", "noopener,noreferrer,width=720,height=640");
-}
-
-function getPerspective(counts: Record<ResultLevel, number>) {
-  if (counts.strong === 7) return perspectiveCopy["all-strong"];
-  if (counts.strong >= 5 && counts["needs-love"] === 0)
-    return perspectiveCopy["strong-overall"];
-  if (counts.strong >= 4 && counts["needs-love"] <= 2)
-    return perspectiveCopy["strong-with-gaps"];
-  if (counts.building >= 4 && counts["needs-love"] <= 2)
-    return perspectiveCopy.building;
-  if (counts["needs-love"] >= 4)
-    return perspectiveCopy["several-needs-love"];
-  return perspectiveCopy.mixed;
-}
-
-function TargetDartIcon() {
-  return (
-    <svg
-      className="results-target-dart-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="7.5" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="12" cy="12" r="1.3" fill="currentColor" />
-      <path
-        d="M17.4 6.6L12.3 11.1"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path d="M12.3 11.1L10.8 12.6L12.3 11.1L13.4 10.2Z" fill="currentColor" />
-      <path d="M17.4 6.6L18.6 5.2L16.9 5.9Z" fill="currentColor" />
-    </svg>
-  );
 }
 
 function CompactResultSection({ section }: { section: EvaluatedSection }) {
@@ -288,8 +229,17 @@ export default function ResultsPage({
   );
 
   if (compact) {
+    const clickingSections = rankPrioritySections(
+      evaluated.filter((section) => section.level === "strong"),
+      responses,
+    );
+    const needsLoveSections = rankPrioritySections(
+      evaluated.filter((section) => section.level === "needs-love"),
+      responses,
+    );
     const categories: Array<{
-      level: ResultLevel;
+      key: string;
+      sections: EvaluatedSection[];
       cardClass: string;
       label: string;
       summary: string;
@@ -299,31 +249,52 @@ export default function ResultsPage({
       ctaClass: string;
       badgeClass: string;
       emptyMessage: string;
+      showDetails: boolean;
     }> = [
       {
-        level: "strong",
+        key: "strong",
+        sections: clickingSections,
         cardClass: "results-expanded-card--clicking",
         label: "What's Clicking",
         summary: "Top strengths you're doing well",
         badge: "Strong Foundation",
-        headerIcon: "fa-thumbs-up",
+        headerIcon: "fa-trophy",
         gatedClass: "results-gated-preview--clicking",
         ctaClass: "results-gated-preview__cta--clicking",
         badgeClass: "results-full-results-cta--clicking",
         emptyMessage: "No areas landed here this time.",
+        showDetails: true,
       },
-      {
-        level: "needs-love",
+      needsLoveSections.length
+        ? {
+        key: "needs-love",
+        sections: needsLoveSections,
         cardClass: "results-expanded-card--focus",
         label: "Where to Focus Next",
         summary: "Top areas for improvement",
         badge: "Needs a Little Love",
-        headerIcon: "target-dart",
+        headerIcon: "fa-heart",
         gatedClass: "results-gated-preview--focus",
         ctaClass: "results-gated-preview__cta--focus",
         badgeClass: "results-full-results-cta--focus",
         emptyMessage:
           "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage.",
+        showDetails: true,
+      }
+        : {
+        key: "momentum",
+        sections: [],
+        cardClass: "results-expanded-card--focus",
+        label: "Keep the Momentum Going",
+        summary:
+          "Nothing here needs urgent attention — that's genuinely good news. There's still plenty of room to sharpen what's working as your business grows.",
+        badge: "",
+        headerIcon: "fa-arrow-trend-up",
+        gatedClass: "results-gated-preview--focus",
+        ctaClass: "results-gated-preview__cta--focus",
+        badgeClass: "results-full-results-cta--focus",
+        emptyMessage: "",
+        showDetails: false,
       },
     ];
     const evaluationShareCopy =
@@ -358,7 +329,8 @@ export default function ResultsPage({
             <div className="results-expanded-cards">
               {categories.map(
                 ({
-                  level,
+                  key,
+                  sections,
                   cardClass,
                   label,
                   summary,
@@ -368,31 +340,28 @@ export default function ResultsPage({
                   ctaClass,
                   badgeClass,
                   emptyMessage,
+                  showDetails,
                 }) => {
-                const sections = evaluated.filter((section) => section.level === level);
-
                 return (
-                  <section className={`results-expanded-card ${cardClass}`} key={level}>
+                  <section className={`results-expanded-card ${cardClass}`} key={key}>
                     <header>
                       <div className="results-expanded-card__heading">
                         <span className="results-expanded-card__icon" aria-hidden="true">
-                          {headerIcon === "target-dart" ? (
-                            <TargetDartIcon />
-                          ) : (
-                            <i className={`fas ${headerIcon}`} />
-                          )}
+                          <i className={`fas ${headerIcon}`} />
                         </span>
                         <div>
                           <h3>{label}</h3>
                           <p>{summary}</p>
                         </div>
                       </div>
-                      <span className={`results-full-results-cta ${badgeClass}`}>
-                        {badge}
-                      </span>
+                      {badge && (
+                        <span className={`results-full-results-cta ${badgeClass}`}>
+                          {badge}
+                        </span>
+                      )}
                     </header>
 
-                    <div className="results-category-details results-expanded-card__details">
+                    {showDetails && <div className="results-category-details results-expanded-card__details">
                       {sections[0] ? (
                         <CompactResultSection section={sections[0]} />
                       ) : (
@@ -433,7 +402,7 @@ export default function ResultsPage({
                           View Detailed Results
                         </button>
                       </div>
-                    </div>
+                    </div>}
                   </section>
                 );
               })}
@@ -448,16 +417,7 @@ export default function ResultsPage({
                     </span>
                     <div className="results-section__body">
                       <h4 id="ecko-perspective-title">A Little Ecko Perspective</h4>
-                      <p>
-                        You have a solid foundation in several important areas, but there are a few
-                        places where more clarity and consistency could make your marketing{" "}
-                        <strong>work harder for the business.</strong>
-                      </p>
-                      <p>
-                        The biggest opportunity right now is not necessarily doing more marketing —
-                        it&apos;s making sure the pieces you already have are working together with
-                        more intention.
-                      </p>
+                      <p>{getPerspective(counts)}</p>
                     </div>
                   </article>
                 </div>
@@ -544,7 +504,7 @@ export default function ResultsPage({
           <section className="results-strategy-minimal results-strategy-compact">
             <div className="results-strategy-compact__intro">
               <span className="results-strategy-compact__icon" aria-hidden="true">
-                <i className="fas fa-calendar-days" />
+                <i className="fas fa-phone" />
               </span>
               <div>
                 <h2>Want to Talk It Through Instead?</h2>
@@ -695,19 +655,15 @@ export default function ResultsPage({
     );
   }
 
-  const clicking = evaluated.filter(({ level }) => level === "strong").slice(0, 2);
-  const needsLove = evaluated.filter(({ level }) => level === "needs-love");
-  const building = evaluated
-    .filter(({ level }) => level === "building")
-    .sort((a, b) => a.score - b.score);
-  const focus = (needsLove.length ? needsLove : building).slice(0, 2);
-  const allStrong = counts.strong === 7;
-  const focusHeading = needsLove.length
-    ? "Where to Focus Next"
-    : "Opportunities to Build On";
-  const focusIntro = needsLove.length
-    ? "These areas may be creating more friction, extra work, or missed opportunity than the rest of your marketing."
-    : "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage.";
+  const clicking = rankPrioritySections(
+    evaluated.filter(({ level }) => level === "strong"),
+    responses,
+  ).slice(0, 2);
+  const focus = rankPrioritySections(
+    evaluated.filter(({ level }) => level === "needs-love"),
+    responses,
+  ).slice(0, 2);
+  const hasNeedsLove = focus.length > 0;
 
   return (
     <main className="questionnaire-page results-page-minimal">
@@ -741,13 +697,13 @@ export default function ResultsPage({
         )}
 
         <section className="results-block" aria-labelledby="focus-title">
-          <h2 id="focus-title">{allStrong ? "Keep the Momentum Going" : focusHeading}</h2>
+          <h2 id="focus-title">{hasNeedsLove ? "Where to Focus Next" : "Keep the Momentum Going"}</h2>
           <p className="results-block__intro">
-            {allStrong
-              ? "Your results suggest that you have a strong foundation across the areas we reviewed. That doesn't mean your marketing is finished—it means you have solid pieces in place to keep refining as your business, customers, and goals evolve."
-              : focusIntro}
+            {hasNeedsLove
+              ? "These areas may be creating more friction, extra work, or missed opportunity than the rest of your marketing."
+              : "Nothing here needs urgent attention — that's genuinely good news. There's still plenty of room to sharpen what's working as your business grows."}
           </p>
-          {!allStrong && (
+          {hasNeedsLove && (
             <div className="results-insights">
               {focus.map((section) => <Insight key={section.key} section={section} />)}
             </div>

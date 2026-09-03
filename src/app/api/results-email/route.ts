@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       businessName,
       industry,
       evaluated,
+      responses,
       marketingConsent,
       tapInUrl: buildTapInUrl(email),
       strategyUrl: buildStrategyClickUrl(email),

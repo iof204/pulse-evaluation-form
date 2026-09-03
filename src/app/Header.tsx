@@ -128,7 +128,7 @@ export default function Header() {
 
           <div className="headings">
             <h2>
-              <span>Evolve. Elevate. Then Echo!</span>
+              <span>Evolve. Elevate. Then Echo.</span>
             </h2>
           </div>
         </div>

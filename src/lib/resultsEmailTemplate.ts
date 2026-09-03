@@ -1,8 +1,9 @@
 import {
   countLevels,
   evaluateSections,
-  getPerspective,
+  getPerspectiveKey,
   sampleEmailResponses,
+  selectPriorityAreas,
   type EvaluatedSection,
   type Responses,
 } from "./evaluateResults";
@@ -17,11 +18,13 @@ import {
   detailedResultCopy,
   detailedSectionReminder,
 } from "./detailedResultsData";
+import { detailedPerspectiveCopy } from "../app/resultsData";
 export type ResultsEmailInput = {
   firstName: string;
   businessName?: string;
   industry?: string;
   evaluated: EvaluatedSection[];
+  responses: Responses;
   evaluationUrl?: string;
   strategyUrl?: string;
   marketingConsent?: boolean;
@@ -186,9 +189,13 @@ function categoryCardHtml({
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px">
     <tr>
       <td style="padding:0 28px;text-align:center">
-        <div style="text-align:center">
-          ${emailIconCircle(headerIcon, headerIconBackground, headerIconColor, 64, undefined, true)}
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center" style="text-align:center">
+              ${emailIconCircle(headerIcon, headerIconBackground, headerIconColor, 64, undefined, true)}
+            </td>
+          </tr>
+        </table>
         <h3 style="margin:14px 0 0;color:${accentColor};font-family:Poppins,'DM Sans',Arial,Helvetica,sans-serif;font-size:26px;font-weight:600;line-height:1.25;text-align:center">${combinedTitleHtml}</h3>
         <p style="margin:10px auto 0;max-width:520px;color:#544b5a;font-size:15px;line-height:1.65;text-align:center">${escapeHtml(summary)}</p>
       </td>
@@ -200,9 +207,9 @@ function categoryCardHtml({
 
 function pulseAtGlanceHtml(counts: ReturnType<typeof countLevels>) {
   const items = [
-    { label: "Strong Foundation", description: "Solid strengths to build on.", count: counts.strong, icon: "thumbs-up" as const, background: "#f8efd8", color: "#c39f5b" },
+    { label: "Strong Foundation", description: "Solid strengths to build on.", count: counts.strong, icon: "trophy" as const, background: "#f8efd8", color: "#c39f5b" },
     { label: "Building Momentum", description: "Progress with room to grow.", count: counts.building, icon: "chart-line" as const, background: "#eef0f3", color: "#9297a0" },
-    { label: "Needs a Little Love", description: "Areas where focused support can help.", count: counts["needs-love"], icon: "retention" as const, background: "#eee8f2", color: "#7c4d9e" },
+    { label: "Needs a Little Love", description: "Areas where focused support can help.", count: counts["needs-love"], icon: "retention" as const, background: "#eee8f2", color: "#633485" },
   ];
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border:1px solid #e3e0e5;border-radius:12px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.12)">
@@ -225,16 +232,20 @@ function pulseAtGlanceHtml(counts: ReturnType<typeof countLevels>) {
   </table>`;
 }
 
-function perspectiveCardHtml(evaluated: EvaluatedSection[]) {
-  const perspective = getPerspective(countLevels(evaluated));
-  const needsLove = evaluated.filter((section) => section.level === "needs-love");
-  const building = evaluated.filter((section) => section.level === "building");
-  const focusSections = (needsLove.length ? needsLove : building).slice(0, 2);
+function perspectiveCardHtml(evaluated: EvaluatedSection[], responses: Responses) {
+  const perspectiveKey = getPerspectiveKey(countLevels(evaluated));
+  const perspective = detailedPerspectiveCopy[perspectiveKey];
+  const focusSections = selectPriorityAreas(evaluated, responses);
+  const focusLabel = perspectiveKey === "strong-overall"
+    ? "Keep an eye on"
+    : "Areas Worth a Closer Look";
   const focusHtml = focusSections.length
-    ? `<p style="margin:20px 0 8px;color:#3b5f8f;font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.4;text-transform:uppercase">Areas Worth a Closer Look</p>
-      ${focusSections.map((section) => `<p style="margin:12px 0 0;color:#33185c;font-size:14px;font-weight:700;line-height:1.45">${escapeHtml(section.name)}</p>
-      <p style="margin:4px 0 0;color:#544b5a;font-size:14px;line-height:1.65">This is one of the areas your results suggest may be worth a closer look as you think about where to focus your marketing attention next.</p>`).join("")}`
+    ? `<p style="margin:20px 0 8px;color:#3b5f8f;font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.4;text-transform:uppercase">${focusLabel}</p>
+      ${focusSections.map((section) => `<p style="margin:12px 0 0;color:#33185c;font-size:14px;font-weight:700;line-height:1.45">${escapeHtml(section.name)}</p>`).join("")}`
     : "";
+  const perspectiveHtml = perspective
+    .map((paragraph) => `<p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">${escapeHtml(paragraph)}</p>`)
+    .join("");
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border:1px solid #e3e0e5;border-radius:12px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.12)">
     <tr>
@@ -245,9 +256,7 @@ function perspectiveCardHtml(evaluated: EvaluatedSection[]) {
           color: "#3b5f8f",
           title: "Your Ecko Perspective",
           titleColor: "#3b5f8f",
-          bodyHtml: `<p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">${escapeHtml(perspective)}</p>
-          ${focusHtml}
-          <p style="margin:20px 0 0;color:#33185c;font-size:14px;font-weight:700;line-height:1.65">The goal is not to add more marketing. It&rsquo;s to make the marketing that matters easier to manage.</p>`,
+          bodyHtml: `${perspectiveHtml}${focusHtml}`,
         })}
       </td>
     </tr>
@@ -262,7 +271,7 @@ function reminderCardHtml() {
           icon: "star",
           background: "#eee8f2",
           color: "#7c4d9e",
-          title: "One Last Ecko Reminder",
+          title: "A Little Ecko Reminder",
           titleColor: "#7c4d9e",
           bodyHtml: `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:14px"><tr><td valign="top" style="padding-right:8px;color:#7c4d9e;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1">&ldquo;</td><td style="color:#544b5a;font-size:14px;line-height:1.65">Your Marketing Pulse is a snapshot of where your marketing stands today, not a finish line. Keep evolving, elevate what&rsquo;s working, adjust what isn&rsquo;t, and let the strongest parts echo.</td></tr></table>`,
         })}
@@ -280,11 +289,20 @@ function tapInBlockHtml(tapInUrl: string) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border:1px solid #e3e0e5;border-radius:12px;background:#ffffff;box-shadow:0 14px 36px rgba(34,18,51,.12)">
     <tr>
       <td style="padding:24px 24px 20px">
-        <h2 style="margin:0;color:#33185c;font-size:20px;font-weight:600;line-height:1.3">Want to stay tapped in?</h2>
-        <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Tap in to what&rsquo;s moving in marketing &mdash; from practical ideas and trends we&rsquo;re watching to takeaways from Marketing Real Talk by Ecko, Ecko updates, things worth questioning, and the occasional thing we think deserves a spot on your radar.</p>
-        <div style="margin-top:20px;text-align:center">
-          <a href="${tapInUrl}" style="display:inline-block;padding:12px 34px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Tap In</a>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="tap-in-icon" width="64" valign="top" style="width:64px;padding-right:8px;vertical-align:top">
+              ${emailIconCircle("envelope", "#eee8f2", "#633485", 56)}
+            </td>
+            <td class="tap-in-copy" valign="top" style="vertical-align:top">
+              <h2 style="margin:0;color:#33185c;font-size:20px;font-weight:600;line-height:1.3">Want to stay tapped in?</h2>
+              <p style="margin:14px 0 0;color:#544b5a;font-size:14px;line-height:1.65">Tap in to what&rsquo;s moving in marketing &mdash; from practical ideas and trends we&rsquo;re watching to takeaways from Marketing Real Talk by Ecko, Ecko updates, things worth questioning, and the occasional thing we think deserves a spot on your radar.</p>
+              <div style="margin-top:20px;text-align:left">
+                <a href="${tapInUrl}" style="display:inline-block;padding:12px 34px;border-radius:16px;background:#7c4d9e;box-shadow:0 4px 12px rgba(0,0,0,.24);color:#ffffff;font-size:15px;font-weight:500;text-decoration:none">Tap In</a>
+              </div>
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
   </table>`;
@@ -337,7 +355,7 @@ function footerHtml(businessName?: string, industry?: string) {
     <tr>
       <td style="padding:32px 8px;text-align:center;color:#321c58">
         <strong>Your marketing has a pulse. Now let&rsquo;s help it get stronger.</strong>
-        <p style="margin:6px 0 0;color:#7c4d9e">Evolve. Elevate. Then Echo!</p>
+        <p style="margin:6px 0 0;color:#7c4d9e">Evolve. Elevate. Then Echo.</p>
         ${businessName ? `<p style="margin:18px 0 0;color:#817889;font-size:12px">Prepared for ${escapeHtml(businessName)} &middot; ${escapeHtml(industry ?? "")}</p>` : ""}
       </td>
     </tr>
@@ -349,6 +367,7 @@ export function buildResultsEmailHtml({
   businessName,
   industry,
   evaluated,
+  responses,
   evaluationUrl = DEFAULT_EVALUATION_URL,
   strategyUrl = DEFAULT_STRATEGY_URL,
   marketingConsent = false,
@@ -368,7 +387,7 @@ export function buildResultsEmailHtml({
       summary: "These are the areas where your marketing appears to have a strong foundation already. Keep building on what's working.",
       badge: "Strong Foundation",
       accentColor: "#c39f5b",
-      headerIcon: "thumbs-up",
+      headerIcon: "trophy",
       headerIconBackground: "#f8efd8",
       headerIconColor: "#c39f5b",
       sections: strongSections,
@@ -389,10 +408,10 @@ export function buildResultsEmailHtml({
       title: "Where to Focus Next",
       summary: "These areas could use a little extra attention. Small improvements here can create a big impact on your results.",
       badge: "Needs a Little Love",
-      accentColor: "#7c4d9e",
-      headerIcon: "target-dart",
+      accentColor: "#633485",
+      headerIcon: "retention",
       headerIconBackground: "#eee8f2",
-      headerIconColor: "#7c4d9e",
+      headerIconColor: "#633485",
       sections: focusSections,
       emptyMessage:
         "Nothing here is waving a red flag, but these areas may have the most room to become clearer, more intentional, or easier to manage.",
@@ -410,6 +429,8 @@ export function buildResultsEmailHtml({
       .strategy-image img { width:100% !important; max-width:100% !important; height:auto !important; }
       @media only screen and (max-width: 560px) {
         .strategy-copy, .strategy-image { display:block !important; width:100% !important; }
+        .tap-in-icon, .tap-in-copy { display:block !important; width:100% !important; }
+        .tap-in-icon { padding:0 0 14px !important; }
         .mobile-section-badge { display:block !important; }
         .desktop-section-badge { display:none !important; }
       }
@@ -434,7 +455,7 @@ export function buildResultsEmailHtml({
               </td>
             </tr>
             <tr>
-              <td style="padding:8px 16px 40px">${pulseAtGlanceHtml(counts)}${cards.join("")}${perspectiveCardHtml(evaluated)}${reminderCardHtml()}${tapInHtml}${strategyBlockHtml(strategyUrl, strategyPortraitUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
+              <td style="padding:8px 16px 40px">${pulseAtGlanceHtml(counts)}${cards.join("")}${perspectiveCardHtml(evaluated, responses)}${reminderCardHtml()}${tapInHtml}${strategyBlockHtml(strategyUrl, strategyPortraitUrl)}${shareBlockHtml(evaluationUrl)}${footerHtml(businessName, industry)}</td>
             </tr>
           </table>
         </td>
@@ -449,16 +470,16 @@ export function buildResultsEmailText({
   businessName,
   industry,
   evaluated,
+  responses,
   evaluationUrl = DEFAULT_EVALUATION_URL,
   strategyUrl = DEFAULT_STRATEGY_URL,
   marketingConsent = false,
   tapInUrl,
 }: ResultsEmailInput) {
   const counts = countLevels(evaluated);
-  const perspective = getPerspective(counts);
-  const needsLove = evaluated.filter((section) => section.level === "needs-love");
-  const building = evaluated.filter((section) => section.level === "building");
-  const focusSections = (needsLove.length ? needsLove : building).slice(0, 2);
+  const perspectiveKey = getPerspectiveKey(counts);
+  const perspective = detailedPerspectiveCopy[perspectiveKey];
+  const focusSections = selectPriorityAreas(evaluated, responses);
   const sectionLines = evaluated.flatMap(({ key, name, snapshots, level }) => {
     const snapshot = snapshots[level];
     const detail = detailedResultCopy[key][level];
@@ -484,10 +505,9 @@ export function buildResultsEmailText({
     "",
     ...sectionLines,
     "Your Ecko Perspective",
-    perspective,
+    ...perspective,
     focusSections.length ? "Areas Worth a Closer Look" : "",
-    ...focusSections.flatMap((section) => [section.name, "This area may be worth a closer look as you think about where to focus your marketing attention next."]),
-    "The goal is not to add more marketing. It's to make the marketing that matters easier to manage.",
+    ...focusSections.map((section) => section.name),
     "",
     "Evolve. Elevate. Then Echo.",
     "",
@@ -504,7 +524,7 @@ export function buildResultsEmailText({
     evaluationUrl,
     "",
     "Your marketing has a pulse. Now let's help it get stronger.",
-    "Evolve. Elevate. Then Echo!",
+    "Evolve. Elevate. Then Echo.",
     businessName ? `Prepared for ${businessName} · ${industry ?? ""}` : "",
   ]
     .filter(Boolean)
@@ -513,13 +533,13 @@ export function buildResultsEmailText({
 
 export function buildResultsEmailFromResponses(
   responses: Responses,
-  details: Omit<ResultsEmailInput, "evaluated">,
+  details: Omit<ResultsEmailInput, "evaluated" | "responses">,
 ) {
   const evaluated = evaluateSections(responses);
   return {
     evaluated,
-    html: buildResultsEmailHtml({ ...details, evaluated }),
-    text: buildResultsEmailText({ ...details, evaluated }),
+    html: buildResultsEmailHtml({ ...details, evaluated, responses }),
+    text: buildResultsEmailText({ ...details, evaluated, responses }),
   };
 }
 
@@ -530,6 +550,7 @@ export function createSampleResultsEmailInput(): ResultsEmailInput {
     businessName: "Northline Studio",
     industry: "Professional Services",
     evaluated,
+    responses: sampleEmailResponses,
     tapInUrl: "/tap-in",
     strategyPortraitUrl: "/images/strategy-spark-email.webp",
   };
