@@ -14,6 +14,7 @@ export default function EmailPreviewPage() {
       "Northline Studio",
       "Professional Services",
     ),
+    assetBaseUrl: "/images/email-system",
   });
 
   return (

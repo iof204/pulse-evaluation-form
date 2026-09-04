@@ -19,6 +19,10 @@ import {
   detailedSectionReminder,
 } from "./detailedResultsData";
 import { detailedPerspectiveCopy } from "../app/resultsData";
+import {
+  buildDesignSystemResultsEmailHtml,
+  EMAIL_ASSET_ROOT,
+} from "./resultsEmailDesignSystem";
 export type ResultsEmailInput = {
   firstName: string;
   businessName?: string;
@@ -31,6 +35,7 @@ export type ResultsEmailInput = {
   tapInUrl?: string;
   logoUrl?: string;
   strategyPortraitUrl?: string;
+  assetBaseUrl?: string;
 };
 
 export const DEFAULT_EVALUATION_URL = "https://post-evaluation-form-v2.vercel.app/v2";
@@ -362,7 +367,7 @@ export function footerHtml(businessName?: string, industry?: string) {
   </table>`;
 }
 
-export function buildResultsEmailHtml({
+export function buildLegacyResultsEmailHtml({
   firstName,
   businessName,
   industry,
@@ -463,6 +468,13 @@ export function buildResultsEmailHtml({
     </table>
   </body>
 </html>`;
+}
+
+export function buildResultsEmailHtml(input: ResultsEmailInput) {
+  const html = buildDesignSystemResultsEmailHtml(input);
+  return input.assetBaseUrl === undefined
+    ? html
+    : html.replaceAll(EMAIL_ASSET_ROOT, input.assetBaseUrl);
 }
 
 export function buildResultsEmailText({

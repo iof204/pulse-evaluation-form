@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import type { ResultLevel } from "./resultsData";
 import {
   evaluateSections,
@@ -10,9 +11,15 @@ import {
   type EvaluatedSection,
   type Responses,
 } from "../lib/evaluateResults";
-import { sectionIconClasses } from "../lib/sectionIcons";
-
-const sectionIcons = sectionIconClasses;
+const emailSectionIcons: Record<EvaluatedSection["key"], string> = {
+  brand: "/images/email-system/sec_brand.png",
+  goals: "/images/email-system/sec_goals.png",
+  audience: "/images/email-system/sec_audience.png",
+  journey: "/images/email-system/sec_journey.png",
+  campaign: "/images/email-system/sec_campaign.png",
+  mix: "/images/email-system/sec_mix.png",
+  retention: "/images/email-system/sec_retention.png",
+};
 
 
 function shareResults(
@@ -44,7 +51,7 @@ function CompactResultSection({ section }: { section: EvaluatedSection }) {
   return (
     <article className="results-section results-section--with-icon">
       <span className="results-section-title__icon" aria-hidden="true">
-        <i className={`fas ${sectionIcons[section.key]}`} />
+        <Image src={emailSectionIcons[section.key]} alt="" width={36} height={36} />
       </span>
       <div className="results-section__body">
         <h4>{section.name}</h4>
@@ -91,7 +98,7 @@ function PulseGlanceCard({ counts }: { counts: Record<ResultLevel, number> }) {
         <div className="results-glance-card__grid">
           <article className="results-glance-card__item results-glance-card__item--strong">
             <span className="results-glance-card__icon" aria-hidden="true">
-              <i className="fas fa-trophy" />
+              <Image src="/images/email-system/em_strong_sm.png" alt="" width={64} height={64} />
             </span>
             <div>
               <strong>{counts.strong}</strong>
@@ -101,7 +108,7 @@ function PulseGlanceCard({ counts }: { counts: Record<ResultLevel, number> }) {
           </article>
           <article className="results-glance-card__item results-glance-card__item--building">
             <span className="results-glance-card__icon" aria-hidden="true">
-              <i className="fas fa-arrow-trend-up" />
+              <Image src="/images/email-system/em_building_sm.png" alt="" width={64} height={64} />
             </span>
             <div>
               <strong>{counts.building}</strong>
@@ -111,7 +118,7 @@ function PulseGlanceCard({ counts }: { counts: Record<ResultLevel, number> }) {
           </article>
           <article className="results-glance-card__item results-glance-card__item--needs-love">
             <span className="results-glance-card__icon" aria-hidden="true">
-              <i className="far fa-heart" />
+              <Image src="/images/email-system/em_love_sm.png" alt="" width={64} height={64} />
             </span>
             <div>
               <strong>{counts["needs-love"]}</strong>
@@ -258,7 +265,7 @@ export default function ResultsPage({
         label: "What's Clicking",
         summary: "Top strengths you're doing well",
         badge: "Strong Foundation",
-        headerIcon: "fa-trophy",
+        headerIcon: "/images/email-system/em_strong_sm.png",
         gatedClass: "results-gated-preview--clicking",
         ctaClass: "results-gated-preview__cta--clicking",
         badgeClass: "results-full-results-cta--clicking",
@@ -273,7 +280,7 @@ export default function ResultsPage({
         label: "Where to Focus Next",
         summary: "Top areas for improvement",
         badge: "Needs a Little Love",
-        headerIcon: "fa-heart",
+        headerIcon: "/images/email-system/em_love_sm.png",
         gatedClass: "results-gated-preview--focus",
         ctaClass: "results-gated-preview__cta--focus",
         badgeClass: "results-full-results-cta--focus",
@@ -289,7 +296,7 @@ export default function ResultsPage({
         summary:
           "Nothing here needs urgent attention — that's genuinely good news. There's still plenty of room to sharpen what's working as your business grows.",
         badge: "",
-        headerIcon: "fa-arrow-trend-up",
+        headerIcon: "/images/email-system/em_building_sm.png",
         gatedClass: "results-gated-preview--focus",
         ctaClass: "results-gated-preview__cta--focus",
         badgeClass: "results-full-results-cta--focus",
@@ -347,7 +354,7 @@ export default function ResultsPage({
                     <header>
                       <div className="results-expanded-card__heading">
                         <span className="results-expanded-card__icon" aria-hidden="true">
-                          <i className={`fas ${headerIcon}`} />
+                          <Image src={headerIcon} alt="" width={56} height={56} />
                         </span>
                         <div>
                           <h3>{label}</h3>
@@ -413,7 +420,7 @@ export default function ResultsPage({
                 <div className="results-category-details results-expanded-card__details">
                   <article className="results-section results-section--with-icon">
                     <span className="results-section-title__icon" aria-hidden="true">
-                      <i className="fas fa-eye" />
+                      <Image src="/images/email-system/med_burst.png" alt="" width={36} height={36} />
                     </span>
                     <div className="results-section__body">
                       <h4 id="ecko-perspective-title">A Little Ecko Perspective</h4>
@@ -429,7 +436,7 @@ export default function ResultsPage({
                 <div className="results-category-details results-expanded-card__details">
                   <article className="results-section results-section--with-icon">
                     <span className="results-section-title__icon" aria-hidden="true">
-                      <i className="fas fa-star" />
+                      <Image src="/images/email-system/med_hand.png" alt="" width={36} height={36} />
                     </span>
                     <div className="results-section__body">
                       <h4 id="ecko-reminder-title">A Little Ecko Reminder</h4>

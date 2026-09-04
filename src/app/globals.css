@@ -2626,6 +2626,13 @@ body {
   font-size: 25px;
 }
 
+.results-glance-card__icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .results-glance-card__item > div {
   display: flex;
   width: 100%;
@@ -3327,6 +3334,14 @@ body {
   background: #f8efd8;
   color: #c39f5b;
   font-size: 26px;
+}
+
+.results-expanded-card__icon img,
+.results-section-title__icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .results-target-dart-icon {
