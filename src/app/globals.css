@@ -1695,6 +1695,49 @@ body {
   object-fit: cover;
 }
 
+.v2-video-card__sound-prompt {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  background: rgb(25 11 51 / 24%);
+  place-items: center;
+}
+
+.v2-video-card__sound-prompt button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 20px;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 8px 24px rgb(20 7 42 / 24%);
+  color: #321c58;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.v2-video-card__sound-prompt button:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.v2-video-card__sound-prompt button:active {
+  transform: scale(0.98);
+}
+
+.v2-video-card__sound-prompt svg {
+  width: 26px;
+  height: 26px;
+}
+
 .v2-video-card__controls {
   position: absolute;
   right: 14px;

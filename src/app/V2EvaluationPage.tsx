@@ -33,6 +33,7 @@ function QuestionVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [needsSoundStart, setNeedsSoundStart] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -44,11 +45,21 @@ function QuestionVideo({
     }
 
     video.muted = false;
-    void video.play().catch(() => {
+    void video.play().then(() => setNeedsSoundStart(false)).catch(() => {
       video.muted = true;
+      setNeedsSoundStart(questionId === 1);
       void video.play().catch(() => setIsPlaying(false));
     });
-  }, [active]);
+  }, [active, questionId]);
+
+  async function startWithSound() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.muted = false;
+    await video.play();
+    setNeedsSoundStart(false);
+  }
 
   async function togglePlayback() {
     const video = videoRef.current;
@@ -92,6 +103,16 @@ function QuestionVideo({
         onEnded={() => setIsPlaying(false)}
         onVolumeChange={(event) => setIsMuted(event.currentTarget.muted)}
       />
+      {active && needsSoundStart && (
+        <div className="v2-video-card__sound-prompt">
+          <button type="button" onClick={startWithSound}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 7.6v8.8L16 12 9 7.6Z" />
+            </svg>
+            Start video with sound
+          </button>
+        </div>
+      )}
       <div className="v2-video-card__controls v2-video-card__controls--sound">
         <button
           type="button"
