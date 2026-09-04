@@ -30,6 +30,7 @@ export default function AccessPage() {
         ? requestedDestination
         : "/v2";
     window.history.replaceState(window.history.state, "", destination);
+    window.scrollTo(0, 0);
     setUnlocked(true);
   }
 
