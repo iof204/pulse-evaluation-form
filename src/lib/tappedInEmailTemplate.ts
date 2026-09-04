@@ -1,12 +1,10 @@
-import { emailIconCircle } from "./emailIcons";
 import {
-  EMAIL_LOGO_URL,
   DEFAULT_STRATEGY_URL,
-  emailHeaderHtml,
   footerHtml,
   shareBlockHtml,
   strategyBlockHtml,
 } from "./resultsEmailTemplate";
+import { EMAIL_ASSET_ROOT } from "./resultsEmailDesignSystem";
 
 export type TappedInEmailInput = {
   firstName?: string;
@@ -15,6 +13,7 @@ export type TappedInEmailInput = {
   logoUrl?: string;
   strategyUrl?: string;
   strategyPortraitUrl?: string;
+  assetBaseUrl?: string;
 };
 
 const escapeHtml = (value: string) =>
@@ -24,9 +23,9 @@ export function buildTappedInEmailHtml({
   firstName,
   businessName,
   industry,
-  logoUrl = EMAIL_LOGO_URL,
   strategyUrl = DEFAULT_STRATEGY_URL,
   strategyPortraitUrl = "https://post-evaluation-form-v2.vercel.app/images/strategy-spark-email.webp",
+  assetBaseUrl = EMAIL_ASSET_ROOT,
 }: TappedInEmailInput = {}) {
   const greeting = firstName ? `, ${escapeHtml(firstName)}` : "";
 
@@ -48,11 +47,11 @@ export function buildTappedInEmailHtml({
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FBF7F3;margin:0;padding:0;font-family:'DM Sans',Arial,Helvetica,sans-serif">
       <tr>
         <td align="center" style="padding:0">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;width:100%;background:#FBF7F3">
-            <tr><td style="padding:0">${emailHeaderHtml(logoUrl)}</td></tr>
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FBF7F3">
+            <tr><td style="padding:0"><img src="${assetBaseUrl}/hero_brand.jpg" width="600" height="257" alt="ECKO Marketing" style="display:block;width:100%;max-width:600px;height:auto;border:0"></td></tr>
             <tr>
               <td style="padding:56px 16px 8px;text-align:center">
-                ${emailIconCircle("envelope", "#eee8f2", "#633485", 64)}
+                <img src="${assetBaseUrl}/mail_disc.png" width="64" height="64" alt="" style="display:block;width:64px;height:64px;margin:0 auto;border:0">
                 <h1 style="margin:18px 0 0;color:#2c1235;font-family:Poppins,'DM Sans',Arial,Helvetica,sans-serif;font-size:34px;font-weight:600;line-height:1.15">You&rsquo;re tapped in${greeting}.</h1>
                 <p style="max-width:520px;margin:18px auto 0;color:#544b5a;font-size:16px;line-height:1.65">Watch for occasional emails from Ecko&rsquo;s Marketing Lens.</p>
                 <p style="max-width:540px;margin:16px auto 0;color:#544b5a;font-size:15px;line-height:1.65">We&rsquo;ll share practical ideas, trends we&rsquo;re watching, Marketing Real Talk takeaways, Ecko updates, and the occasional thing we think deserves a spot on your radar.</p>

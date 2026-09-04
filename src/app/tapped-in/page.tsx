@@ -4,8 +4,8 @@ export default function TappedInPage() {
   const html = buildTappedInEmailHtml({
     businessName: "Northline Studio",
     industry: "Professional Services",
-    logoUrl: "/images/ecko-marketing-logo-white.png",
     strategyPortraitUrl: "/images/strategy-spark-email.webp",
+    assetBaseUrl: "/images/email-system",
   });
 
   return (
