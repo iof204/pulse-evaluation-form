@@ -354,7 +354,11 @@ function EvaluationIntro({ onStart }: { onStart: () => void }) {
   );
 }
 
-export default function V2EvaluationPage() {
+export default function V2EvaluationPage({
+  playbackEnabled = true,
+}: {
+  playbackEnabled?: boolean;
+}) {
   const [hasStarted, setHasStarted] = useState(false);
   const [activeView, setActiveView] = useState(1);
 
@@ -389,7 +393,7 @@ export default function V2EvaluationPage() {
       <div
         className={`v2-evaluation-layout${showVideo ? "" : " v2-evaluation-layout--question-only"}`}
       >
-        <VideoRail playbackEnabled={showVideo} />
+        <VideoRail playbackEnabled={playbackEnabled && showVideo} />
         <div className="v2-question-panel">
           {hasStarted ? (
             <Questionnaire
