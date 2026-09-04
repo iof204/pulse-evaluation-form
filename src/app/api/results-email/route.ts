@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildStrategyClickUrl, buildTapInUrl } from "../../../lib/appUrl";
 import { evaluateSections } from "../../../lib/evaluateResults";
 import { syncMarketingPulseContactToHubSpot } from "../../../lib/hubspotSync";
+import { isMicrosoftGraphEmailConfigured, sendMicrosoftGraphEmail } from "../../../lib/microsoftGraphEmail";
 import { buildResultsEmailHtml, buildResultsEmailText } from "../../../lib/resultsEmailTemplate";
 
 type Responses = Record<number, string[]>;
@@ -31,9 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
     }
 
-    const sender = process.env.GMAIL_SMTP_USER;
-    const password = process.env.GMAIL_SMTP_APP_PASSWORD;
-    if (!sender || !password) {
+    if (!isMicrosoftGraphEmailConfigured()) {
       return NextResponse.json({ error: "Email delivery is not configured." }, { status: 500 });
     }
 
@@ -53,16 +51,8 @@ export async function POST(request: Request) {
       readFile(path.join(process.cwd(), "public/images/strategy-spark-email.webp")),
     ]);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: { user: sender, pass: password },
-    });
-    await transporter.sendMail({
-      from: `Ecko Marketing Pulse <${sender}>`,
+    await sendMicrosoftGraphEmail({
       to: email,
-      replyTo: sender,
       subject: "Your Full Marketing Pulse Evaluation",
       text: buildResultsEmailText(emailContent),
       html: buildResultsEmailHtml({
@@ -75,13 +65,13 @@ export async function POST(request: Request) {
           filename: "ecko-marketing-logo.png",
           content: emailLogo,
           contentType: "image/png",
-          cid: "ecko-marketing-logo",
+          contentId: "ecko-marketing-logo",
         },
         {
           filename: "ecko-strategy-portrait.webp",
           content: strategyPortrait,
           contentType: "image/webp",
-          cid: "ecko-strategy-portrait",
+          contentId: "ecko-strategy-portrait",
         },
       ],
       headers: { "X-Ecko-Marketing-Consent": marketingConsent ? "yes" : "no" },

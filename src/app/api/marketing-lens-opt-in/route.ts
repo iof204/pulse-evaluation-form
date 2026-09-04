@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildStrategyClickUrl } from "../../../lib/appUrl";
 import { recordMarketingLensOptIn } from "../../../lib/hubspotSync";
+import { isMicrosoftGraphEmailConfigured, sendMicrosoftGraphEmail } from "../../../lib/microsoftGraphEmail";
 import { verifyTapInToken } from "../../../lib/tapInToken";
 import { buildTappedInEmailHtml, buildTappedInEmailText } from "../../../lib/tappedInEmailTemplate";
 
@@ -13,9 +13,7 @@ async function sendTappedInEmail(
   businessName?: string,
   industry?: string,
 ) {
-  const sender = process.env.GMAIL_SMTP_USER;
-  const password = process.env.GMAIL_SMTP_APP_PASSWORD;
-  if (!sender || !password) {
+  if (!isMicrosoftGraphEmailConfigured()) {
     console.warn("Email delivery is not configured; skipping Tap In confirmation email.");
     return { skipped: true as const };
   }
@@ -25,17 +23,8 @@ async function sendTappedInEmail(
     readFile(path.join(process.cwd(), "public/images/ecko-marketing-logo-white.png")),
     readFile(path.join(process.cwd(), "public/images/strategy-spark-email.webp")),
   ]);
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: { user: sender, pass: password },
-  });
-
-  await transporter.sendMail({
-    from: `Ecko Marketing <${sender}>`,
+  await sendMicrosoftGraphEmail({
     to: email,
-    replyTo: sender,
     subject: "You’re Tapped In to Ecko’s Marketing Lens",
     text: buildTappedInEmailText(firstName, strategyUrl),
     html: buildTappedInEmailHtml({
@@ -47,8 +36,8 @@ async function sendTappedInEmail(
       strategyPortraitUrl: "cid:ecko-strategy-portrait",
     }),
     attachments: [
-      { filename: "ecko-marketing-logo.png", content: emailLogo, contentType: "image/png", cid: "ecko-marketing-logo" },
-      { filename: "ecko-strategy-portrait.webp", content: strategyPortrait, contentType: "image/webp", cid: "ecko-strategy-portrait" },
+      { filename: "ecko-marketing-logo.png", content: emailLogo, contentType: "image/png", contentId: "ecko-marketing-logo" },
+      { filename: "ecko-strategy-portrait.webp", content: strategyPortrait, contentType: "image/webp", contentId: "ecko-strategy-portrait" },
     ],
   });
   return { skipped: false as const };
