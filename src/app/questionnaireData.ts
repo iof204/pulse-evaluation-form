@@ -38,9 +38,9 @@ export const evaluationQuestions: EvaluationQuestion[] = [
   {
     id: 1,
     sectionId: 1,
-    kind: "multi-select",
+    kind: "select",
     title: "What is the biggest job you need your marketing to do right now?",
-    helper: "Choose all that apply.",
+    helper: "Choose the one that feels most important today.",
     answers: [
       option("awareness", "Build awareness and help more people discover our business.", "Getting more of the right people to discover your business and understand what makes it worth remembering. Prioritizing visibility, recognition, and a clearer presence."),
       option("leads", "Generate more leads or inquiries.", "Creating more qualified interest and giving people a clear reason to reach out. Prioritizing attention that turns into real inquiries and opportunities."),
