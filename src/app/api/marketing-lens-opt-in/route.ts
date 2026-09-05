@@ -19,10 +19,9 @@ async function sendTappedInEmail(
   }
 
   const strategyUrl = buildStrategyClickUrl(email);
-  const [emailLogo, strategyPortrait] = await Promise.all([
-    readFile(path.join(process.cwd(), "public/images/ecko-marketing-logo-white.png")),
-    readFile(path.join(process.cwd(), "public/images/strategy-spark-email.webp")),
-  ]);
+  const strategyPortrait = await readFile(
+    path.join(process.cwd(), "public/images/strategy-spark-email.webp"),
+  );
   await sendMicrosoftGraphEmail({
     to: email,
     subject: "You’re Tapped In to Ecko’s Marketing Lens",
@@ -32,11 +31,9 @@ async function sendTappedInEmail(
       businessName,
       industry,
       strategyUrl,
-      logoUrl: "cid:ecko-marketing-logo",
       strategyPortraitUrl: "cid:ecko-strategy-portrait",
     }),
     attachments: [
-      { filename: "ecko-marketing-logo.png", content: emailLogo, contentType: "image/png", contentId: "ecko-marketing-logo" },
       { filename: "ecko-strategy-portrait.webp", content: strategyPortrait, contentType: "image/webp", contentId: "ecko-strategy-portrait" },
     ],
   });
